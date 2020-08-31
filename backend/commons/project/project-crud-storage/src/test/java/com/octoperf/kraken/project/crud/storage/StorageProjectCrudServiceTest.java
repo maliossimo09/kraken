@@ -1,6 +1,7 @@
 package com.octoperf.kraken.project.crud.storage;
 
 import com.google.common.collect.ImmutableList;
+import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.entity.ProjectTest;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -42,6 +43,8 @@ class StorageProjectCrudServiceTest {
   EventBus eventBus;
   @Mock
   IdGenerator idGenerator;
+  @Mock
+  ApplicationProperties properties;
   @Captor
   ArgumentCaptor<CreateProjectEvent> createProjectEventArgumentCaptor;
   @Captor
@@ -54,7 +57,7 @@ class StorageProjectCrudServiceTest {
 
   @BeforeEach
   void before() {
-    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator);
+    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator, properties);
     owner = Owner.builder()
         .userId("userId")
         .roles(ImmutableList.of(KrakenRole.USER))
@@ -66,7 +69,6 @@ class StorageProjectCrudServiceTest {
   void shouldListProjects() {
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
-        .userId(owner.getUserId())
         .build())).willReturn(Mono.just(storageClient));
     given(storageClient.find("", 3, "project.json")).willReturn(Flux.just(StorageNodeTest.STORAGE_NODE));
     given(storageClient.getJsonContent(StorageNodeTest.STORAGE_NODE.getPath(), Project.class)).willReturn(Mono.just(ProjectTest.PROJECT));
@@ -79,7 +81,6 @@ class StorageProjectCrudServiceTest {
   void shouldGetProjects() {
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
-        .userId(owner.getUserId())
         .applicationId(owner.getApplicationId())
         .projectId(owner.getProjectId())
         .build())).willReturn(Mono.just(storageClient));
@@ -94,11 +95,12 @@ class StorageProjectCrudServiceTest {
     final var appId = "app";
     final var projectId = "projId";
     final var projectName = "projName";
+    final var version = "1.0.0";
     given(idGenerator.generate()).willReturn(projectId);
+    given(properties.getVersion()).willReturn(version);
 
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
-        .userId(owner.getUserId())
         .applicationId(appId)
         .projectId(projectId)
         .build())).willReturn(Mono.just(storageClient));
@@ -115,6 +117,7 @@ class StorageProjectCrudServiceTest {
     assertThat(project.getId()).isEqualTo(projectId);
     assertThat(project.getName()).isEqualTo(projectName);
     assertThat(project.getApplicationId()).isEqualTo(appId);
+    assertThat(project.getVersion()).isEqualTo(version);
 
     assertThat(project).isEqualTo(projectArgumentCaptor.getValue());
 
@@ -129,7 +132,6 @@ class StorageProjectCrudServiceTest {
     final var newName = project.toBuilder().name("newName").build();
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
-        .userId(owner.getUserId())
         .projectId(project.getId())
         .applicationId(project.getApplicationId())
         .build())).willReturn(Mono.just(storageClient));
@@ -149,7 +151,6 @@ class StorageProjectCrudServiceTest {
     final var project = ProjectTest.PROJECT;
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
-        .userId(owner.getUserId())
         .build())).willReturn(Mono.just(storageClient));
     given(storageClient.delete(project.getId())).willReturn(Mono.just(true));
     service.delete(owner, project).block();
