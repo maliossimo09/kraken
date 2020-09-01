@@ -5,6 +5,7 @@ import com.octoperf.kraken.Application;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
 import com.octoperf.kraken.security.entity.token.KrakenRole;
+import com.octoperf.kraken.storage.entity.StorageInitMode;
 import com.octoperf.kraken.storage.entity.StorageNode;
 import com.octoperf.kraken.storage.entity.StorageWatcherEvent;
 import org.junit.Assert;
@@ -75,7 +76,7 @@ public class FileSystemStorageServiceIntegrationTest {
   }
 
   @Test
-  public void shouldInitFail() throws IOException {
+  public void shouldInitFail() {
     final var serviceAdmin = serviceBuilder.build(Owner.builder()
         .applicationId("gatling")
         .projectId("project-id")
@@ -83,7 +84,7 @@ public class FileSystemStorageServiceIntegrationTest {
         .roles(ImmutableList.of(KrakenRole.ADMIN))
         .type(OwnerType.USER)
         .build());
-    create(serviceAdmin.init())
+    create(serviceAdmin.init(StorageInitMode.COPY))
         .expectError()
         .verify();
   }
@@ -98,11 +99,17 @@ public class FileSystemStorageServiceIntegrationTest {
         .roles(ImmutableList.of(KrakenRole.USER))
         .type(OwnerType.USER)
         .build());
-    create(serviceUser.init())
+    create(serviceUser.init(StorageInitMode.COPY))
         .expectComplete()
         .verify();
     assertThat(path.toFile().exists()).isTrue();
     FileSystemUtils.deleteRecursively(Path.of("testDir", "users"));
+  }
+
+  @Test
+  public void shouldInitEmpty() throws IOException {
+    // TODO
+    assertThat(true).isFalse();
   }
 
   @Test

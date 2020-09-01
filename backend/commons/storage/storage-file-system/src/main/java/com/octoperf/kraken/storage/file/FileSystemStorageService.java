@@ -3,6 +3,7 @@ package com.octoperf.kraken.storage.file;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
 import com.octoperf.kraken.security.entity.token.KrakenRole;
+import com.octoperf.kraken.storage.entity.StorageInitMode;
 import com.octoperf.kraken.storage.entity.StorageNode;
 import com.octoperf.kraken.storage.entity.StorageWatcherEvent;
 import com.octoperf.kraken.storage.entity.StorageWatcherEventType;
@@ -52,8 +53,10 @@ final class FileSystemStorageService implements StorageService {
   @NonNull PathToStorageNode toStorageNode;
   @NonNull OwnerToPath ownerToPath;
   @NonNull EventBus eventBus;
+  @NonNull List<InitHandler> initHandlers;
 
-  public Mono<Void> init() {
+  @Override
+  public Mono<Void> init(final StorageInitMode mode) {
     if (!OwnerType.USER.equals(owner.getType()) || owner.getRoles().stream().anyMatch(krakenRole -> krakenRole.equals(KrakenRole.ADMIN))) {
       return Mono.error(new IllegalArgumentException(String.format("init() is only available for Users, not for %s owners", owner.getType())));
     }
@@ -63,18 +66,11 @@ final class FileSystemStorageService implements StorageService {
       final var rootFile = root.toFile();
       if (!rootFile.exists()) {
         if (!rootFile.mkdirs()) {
-          throw new RuntimeException("Failed to create directory " + root);
-        }
-        try (final var stream = Files.walk(applicationPath)) {
-          stream.forEach(subFile -> {
-            try {
-              Files.copy(subFile, root.resolve(applicationPath.relativize(subFile)), StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception e) {
-              throw new RuntimeException(e.getMessage(), e);
-            }
-          });
+          throw new IllegalStateException("Failed to create directory " + root);
         }
       }
+      final var initHandler = this.initHandlers.stream().filter(handler -> handler.test(mode)).findFirst().orElseThrow();
+      initHandler.init(root, applicationPath);
       return null;
     });
   }

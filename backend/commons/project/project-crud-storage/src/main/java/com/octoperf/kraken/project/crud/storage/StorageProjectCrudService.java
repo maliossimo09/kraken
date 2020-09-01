@@ -1,5 +1,6 @@
 package com.octoperf.kraken.project.crud.storage;
 
+import com.octoperf.kraken.git.client.api.GitClientBuilder;
 import com.octoperf.kraken.project.crud.api.ProjectCrudService;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -9,6 +10,7 @@ import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClien
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.storage.client.api.StorageClient;
 import com.octoperf.kraken.storage.client.api.StorageClientBuilder;
+import com.octoperf.kraken.storage.entity.StorageInitMode;
 import com.octoperf.kraken.tools.event.bus.EventBus;
 import com.octoperf.kraken.tools.unique.id.IdGenerator;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,8 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Paths;
 import java.time.Instant;
 
+import static com.octoperf.kraken.storage.entity.StorageInitMode.COPY;
+import static com.octoperf.kraken.storage.entity.StorageInitMode.EMPTY;
 import static lombok.AccessLevel.PRIVATE;
 
 @Slf4j
@@ -35,6 +39,7 @@ final class StorageProjectCrudService implements ProjectCrudService {
   @NonNull StorageClientBuilder storageClientBuilder;
   @NonNull EventBus eventBus;
   @NonNull IdGenerator idGenerator;
+  @NonNull GitClientBuilder gitClientBuilder;
 
   @Override
   public Mono<Project> get(final Owner owner) {
@@ -52,6 +57,16 @@ final class StorageProjectCrudService implements ProjectCrudService {
 
   @Override
   public Mono<Project> create(final Owner owner, final String applicationId, final String name) {
+    return this.createProject(owner, applicationId, name, COPY);
+  }
+
+  @Override
+  public Mono<Project> importFromGit(final Owner owner, final String applicationId, final String name, final String repositoryUrl) {
+    final var connect = this.gitClientBuilder.build(AuthenticatedClientBuildOrder.builder().build()).flatMap(gitClient -> gitClient.connect(repositoryUrl));
+    return this.createProject(owner, applicationId, name, EMPTY).flatMap(project -> connect.map(gitConfiguration -> project));
+  }
+
+  private Mono<Project> createProject(final Owner owner, final String applicationId, final String name, final StorageInitMode mode) {
     final var now = Instant.now().toEpochMilli();
     final var project = Project.builder()
         .id(this.idGenerator.generate())
@@ -60,7 +75,7 @@ final class StorageProjectCrudService implements ProjectCrudService {
         .createDate(now)
         .updateDate(now)
         .build();
-    final var initApplication = this.applicationStorageClient(project.getId(), applicationId).flatMap(StorageClient::init);
+    final var initApplication = this.applicationStorageClient(project.getId(), applicationId).flatMap(storageClient -> storageClient.init(COPY));
     final var createProjectJson = this.projectStorageClient(project.getId()).flatMap(storageClient -> storageClient.setJsonContent(PROJECT_PATH, project));
     return initApplication.then(createProjectJson)
         .map(storageNode -> project)
@@ -70,9 +85,6 @@ final class StorageProjectCrudService implements ProjectCrudService {
             .build())
         );
   }
-
-  // TODO Import
-  // Same a create but init is replaced by git clone
 
   @Override
   public Mono<Project> update(final Owner owner, final Project project) {

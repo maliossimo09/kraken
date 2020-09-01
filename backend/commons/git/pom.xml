@@ -20,5 +20,7 @@
         <module>git-user-events-listener</module>
         <module>git-credentials-api</module>
         <module>git-credentials-jsch</module>
+        <module>git-client-api</module>
+        <module>git-client-spring</module>
     </modules>
 </project>

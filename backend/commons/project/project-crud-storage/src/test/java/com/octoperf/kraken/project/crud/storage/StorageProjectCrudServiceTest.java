@@ -1,6 +1,7 @@
 package com.octoperf.kraken.project.crud.storage;
 
 import com.google.common.collect.ImmutableList;
+import com.octoperf.kraken.git.client.api.GitClientBuilder;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.entity.ProjectTest;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -12,6 +13,7 @@ import com.octoperf.kraken.security.entity.owner.OwnerType;
 import com.octoperf.kraken.security.entity.token.KrakenRole;
 import com.octoperf.kraken.storage.client.api.StorageClient;
 import com.octoperf.kraken.storage.client.api.StorageClientBuilder;
+import com.octoperf.kraken.storage.entity.StorageInitMode;
 import com.octoperf.kraken.storage.entity.StorageNodeTest;
 import com.octoperf.kraken.tools.event.bus.EventBus;
 import com.octoperf.kraken.tools.unique.id.IdGenerator;
@@ -42,6 +44,8 @@ class StorageProjectCrudServiceTest {
   EventBus eventBus;
   @Mock
   IdGenerator idGenerator;
+  @Mock
+  GitClientBuilder gitClientBuilder;
   @Captor
   ArgumentCaptor<CreateProjectEvent> createProjectEventArgumentCaptor;
   @Captor
@@ -54,7 +58,7 @@ class StorageProjectCrudServiceTest {
 
   @BeforeEach
   void before() {
-    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator);
+    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator, gitClientBuilder);
     owner = Owner.builder()
         .userId("userId")
         .roles(ImmutableList.of(KrakenRole.USER))
@@ -100,11 +104,11 @@ class StorageProjectCrudServiceTest {
         .projectId(projectId)
         .build())).willReturn(Mono.just(storageClient));
 
-    given(storageClient.init()).willReturn(Mono.empty());
+    given(storageClient.init(StorageInitMode.COPY)).willReturn(Mono.empty());
     given(storageClient.setJsonContent(eq("project.json"), any(Project.class))).willReturn(Mono.just(StorageNodeTest.STORAGE_NODE));
 
     final var project = service.create(owner, appId, projectName).block();
-    verify(storageClient).init();
+    verify(storageClient).init(StorageInitMode.COPY);
     verify(storageClient).setJsonContent(eq("project.json"), projectArgumentCaptor.capture());
     verify(eventBus).publish(createProjectEventArgumentCaptor.capture());
 
@@ -118,6 +122,11 @@ class StorageProjectCrudServiceTest {
     final var event = createProjectEventArgumentCaptor.getValue();
     assertThat(event.getProject()).isEqualTo(project);
     assertThat(event.getOwner()).isEqualTo(owner.toBuilder().applicationId(appId).projectId(projectId).build());
+  }
+
+  @Test
+  void shouldImportProject() {
+    assertThat(false).isTrue();
   }
 
   @Test

@@ -9,22 +9,17 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>git-server</artifactId>
+    <artifactId>git-client-api</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>com.octoperf.kraken</groupId>
-            <artifactId>git-service-api</artifactId>
+            <artifactId>git-entity</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.octoperf.kraken</groupId>
-            <artifactId>security-authentication-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.octoperf.kraken</groupId>
-            <artifactId>security-configuration</artifactId>
+            <artifactId>security-authentication-client-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
