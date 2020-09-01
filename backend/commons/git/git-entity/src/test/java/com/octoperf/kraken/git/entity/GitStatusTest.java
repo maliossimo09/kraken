@@ -9,7 +9,7 @@ class GitStatusTest {
   public static final GitStatus GIT_STATUS = GitStatus.builder()
       .diff(ImmutableMultimap.of("path", GitFileStatus.CONFLICTING, "path", GitFileStatus.MODIFIED))
       .hasUncommittedChanges(true)
-      .isClean(false)
+      .clean(false)
       .build();
 
 

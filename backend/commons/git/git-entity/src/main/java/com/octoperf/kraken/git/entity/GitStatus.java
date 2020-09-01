@@ -13,17 +13,17 @@ public class GitStatus {
 
   Multimap<String, GitFileStatus> diff;
   boolean hasUncommittedChanges;
-  boolean isClean;
+  boolean clean;
 
   @JsonCreator
   GitStatus(
       @NonNull @JsonProperty("diff") final Multimap<String, GitFileStatus> diff,
       @NonNull @JsonProperty("hasUncommittedChanges") final boolean hasUncommittedChanges,
-      @NonNull @JsonProperty("isClean") final boolean isClean
+      @NonNull @JsonProperty("clean") final boolean clean
   ) {
     super();
     this.diff = diff;
     this.hasUncommittedChanges = hasUncommittedChanges;
-    this.isClean = isClean;
+    this.clean = clean;
   }
 }

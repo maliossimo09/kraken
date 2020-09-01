@@ -60,17 +60,19 @@ final class JGitFileService implements GitFileService {
 //    System.out.println(status.getRemoved());
 //    System.out.println(status.isClean());
     return Mono.fromCallable(() -> git.status().call()).map(status -> GitStatus.builder()
-        .ignoredNotInIndex(status.getIgnoredNotInIndex())
-        .added(status.getAdded())
-        .untracked(status.getUntracked())
-        .untrackedFolders(status.getUntrackedFolders())
-        .conflicting(status.getConflicting())
-        .changed(status.getChanged())
-        .missing(status.getMissing())
-        .uncommittedChanges(status.getUncommittedChanges())
-        .removed(status.getRemoved())
+//        .ignoredNotInIndex(status.getIgnoredNotInIndex())
+//        .added(status.getAdded())
+//        .untracked(status.getUntracked())
+//        .untrackedFolders(status.getUntrackedFolders())
+//        .conflicting(status.getConflicting())
+//        .changed(status.getChanged())
+//        .missing(status.getMissing())
+//        .uncommittedChanges(status.getUncommittedChanges())
+//        .removed(status.getRemoved())
+        // TODO
+        .diff(null)
         .hasUncommittedChanges(status.hasUncommittedChanges())
-        .isClean(status.isClean())
+        .clean(status.isClean())
         .build());
   }
 
