@@ -1,5 +1,7 @@
 package com.octoperf.kraken.git.service.jgit;
 
+import com.google.common.collect.ImmutableMultimap;
+import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
 import com.octoperf.kraken.git.event.GitStatusUpdateEvent;
 import com.octoperf.kraken.git.service.api.GitFileService;
@@ -12,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.TransportConfigCallback;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
@@ -37,44 +40,43 @@ final class JGitFileService implements GitFileService {
         .then();
   }
 
-  public Mono<Void> resolve(final String path) {
+  public Mono<Void> markAsResolved(final String path) {
     return this.add(Optional.of(path));
   }
 
   public Mono<GitStatus> status() {
-    // TODO Multi valued set <Path, GitFileStatus[]>
-//    uncommittedChanges.addAll(diff.getAdded());
-//    uncommittedChanges.addAll(diff.getChanged());
-//    uncommittedChanges.addAll(diff.getRemoved());
-//    uncommittedChanges.addAll(diff.getMissing());
-//    uncommittedChanges.addAll(diff.getModified());
-//    uncommittedChanges.addAll(diff.getConflicting());
+    return Mono.fromCallable(() -> git.status().call()).map(status -> {
+      final var diff = ImmutableMultimap.<String, GitFileStatus>builder();
+      status.getAdded().forEach(path -> diff.put(path, GitFileStatus.ADDED));
+      status.getChanged().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
+      status.getConflicting().forEach(path -> diff.put(path, GitFileStatus.CONFLICTING));
+      status.getIgnoredNotInIndex().forEach(path -> diff.put(path, GitFileStatus.IGNORED_NOT_IN_INDEX));
+      status.getMissing().forEach(path -> diff.put(path, GitFileStatus.MISSING));
+      status.getModified().forEach(path -> diff.put(path, GitFileStatus.MODIFIED));
+      status.getRemoved().forEach(path -> diff.put(path, GitFileStatus.REMOVED));
+      status.getUntracked().forEach(path -> diff.put(path, GitFileStatus.UNTRACKED));
+      status.getUntrackedFolders().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
 
-//    System.out.println(status.getConflicting());
-//    System.out.println(status.getUntracked());
-//    System.out.println(status.getUntrackedFolders());
-//    System.out.println(status.getChanged());
-//    System.out.println(status.getMissing());
-//    System.out.println(status.getUncommittedChanges());
-//    System.out.println(status.hasUncommittedChanges());
-//    System.out.println(status.getRemoved());
-//    System.out.println(status.isClean());
-    return Mono.fromCallable(() -> git.status().call()).map(status -> GitStatus.builder()
-//        .ignoredNotInIndex(status.getIgnoredNotInIndex())
-//        .added(status.getAdded())
-//        .untracked(status.getUntracked())
-//        .untrackedFolders(status.getUntrackedFolders())
-//        .conflicting(status.getConflicting())
-//        .changed(status.getChanged())
-//        .missing(status.getMissing())
-//        .uncommittedChanges(status.getUncommittedChanges())
-//        .removed(status.getRemoved())
-        // TODO
-        .diff(null)
-        .hasUncommittedChanges(status.hasUncommittedChanges())
-        .clean(status.isClean())
-        .build());
+      // TODO add a Map of conflicts
+//      status.getConflictingStageState();
+
+      return GitStatus.builder()
+          .diff(diff.build())
+          .hasUncommittedChanges(status.hasUncommittedChanges())
+          .clean(status.isClean())
+          .build();
+    });
   }
+
+  public Flux<GitStatus> watchStatus(){
+    // Return status every N seconds min, when GitStatusUpdateEvent or StorageWatcherEvent happens
+
+    return null;
+  }
+
+  // TODO keepTheirs
+
+  // TODO keepOurs
 
   // startSync => status error si conflicts
 
@@ -88,9 +90,9 @@ final class JGitFileService implements GitFileService {
   // status
   // Ecouter les events storage + les events git => mettre a jour si il y'a des modifications
 
-  // listVersions filePath
+  // TODO listVersions filePath
 
-  // getFileContent filePath version
+  // TODO getFileContent filePath version
 
   public void close() {
     git.close();
