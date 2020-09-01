@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.user.events.listener;
 
-import com.octoperf.kraken.git.credentials.api.GitCredentialsService;
+import com.octoperf.kraken.git.service.api.GitUserService;
 import com.octoperf.kraken.security.user.events.listener.UserEventsServiceAdapter;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -17,10 +17,10 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class GitUserEventsService extends UserEventsServiceAdapter {
 
-  @NonNull GitCredentialsService credentialsService;
+  @NonNull GitUserService userService;
 
   @Override
   public Mono<String> onRegisterUser(final String userId, final String email, final String username) {
-    return this.credentialsService.initCredentials(userId).map(gitCredentials -> userId);
+    return this.userService.initCredentials(userId).map(gitCredentials -> userId);
   }
 }
