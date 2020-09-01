@@ -14,7 +14,6 @@ public class Project {
   String applicationId;
   Long createDate;
   Long updateDate;
-  String version;
 
   @JsonCreator
   Project(
@@ -22,8 +21,7 @@ public class Project {
       @NonNull @JsonProperty("name") final String name,
       @NonNull @JsonProperty("applicationId") final String applicationId,
       @NonNull @JsonProperty("createDate") final Long createDate,
-      @NonNull @JsonProperty("updateDate") final Long updateDate,
-      @NonNull @JsonProperty("version") final String version
+      @NonNull @JsonProperty("updateDate") final Long updateDate
       ) {
     super();
     this.id = id;
@@ -31,6 +29,5 @@ public class Project {
     this.applicationId = applicationId;
     this.createDate = createDate;
     this.updateDate = updateDate;
-    this.version = version;
   }
 }

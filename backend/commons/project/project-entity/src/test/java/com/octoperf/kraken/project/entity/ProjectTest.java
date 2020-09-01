@@ -11,7 +11,6 @@ public class ProjectTest {
       .applicationId("applicationId")
       .createDate(42L)
       .updateDate(42L)
-      .version("1.0.0")
       .build();
 
 

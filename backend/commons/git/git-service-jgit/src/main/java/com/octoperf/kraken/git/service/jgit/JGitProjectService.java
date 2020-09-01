@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.service.api.GitProjectService;
 import com.octoperf.kraken.git.service.api.GitUserService;
-import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -19,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static lombok.AccessLevel.PRIVATE;
 
 @Slf4j
@@ -27,7 +27,7 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class JGitProjectService implements GitProjectService {
 
-  private static final Path GIT_CONFIGURATION_PATH = Paths.get(".kraken", "git.json");
+  private static final Path GIT_CONFIGURATION_PATH = Paths.get("git.json");
   private static final Path DOT_GIT_PATH = Paths.get(".git");
 
   @NonNull ObjectMapper mapper;
@@ -37,9 +37,9 @@ final class JGitProjectService implements GitProjectService {
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
-    final var rootPath = ownerToPath.apply(owner);
-
     final var writeConf = Mono.fromCallable(() -> {
+      // Write the git.json file as a sibling of the application folder
+      final var rootPath = ownerToPath.apply(owner.toBuilder().applicationId("").build());
       final var config = GitConfiguration.builder().repositoryUrl(repositoryUrl).build();
       Files.writeString(rootPath.resolve(GIT_CONFIGURATION_PATH), mapper.writeValueAsString(config));
       return config;
@@ -47,6 +47,7 @@ final class JGitProjectService implements GitProjectService {
 
     final var cloneRepo =
         this.ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
+          final var rootPath = ownerToPath.apply(owner);
           final CloneCommand command = new CloneCommand();
           command.setURI(repositoryUrl)
               .setDirectory(rootPath.toFile())
@@ -56,6 +57,15 @@ final class JGitProjectService implements GitProjectService {
         }));
 
     return cloneRepo.then(writeConf);
+  }
+
+  @Override
+  public Mono<GitConfiguration> getConfiguration(Owner owner) {
+    final var rootPath = ownerToPath.apply(owner);
+    return Mono.fromCallable(() -> {
+      final var str = Files.readString(rootPath.resolve(GIT_CONFIGURATION_PATH), UTF_8);
+      return mapper.readValue(str, GitConfiguration.class);
+    });
   }
 
   @Override
@@ -75,12 +85,5 @@ final class JGitProjectService implements GitProjectService {
     });
 
     return Mono.zip(deleteDotGit, deleteGitConfiguration, deleteDotSSH).then();
-  }
-
-  @Override
-  public Mono<Project> importFromRepository(final Owner owner, final String repositoryUrl) {
-    // ???
-
-    return null;
   }
 }

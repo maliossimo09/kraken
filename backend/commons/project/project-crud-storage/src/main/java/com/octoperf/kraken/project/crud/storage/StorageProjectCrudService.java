@@ -1,6 +1,5 @@
 package com.octoperf.kraken.project.crud.storage;
 
-import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.project.crud.api.ProjectCrudService;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -31,22 +30,21 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class StorageProjectCrudService implements ProjectCrudService {
 
-  private static final String PROJECT_PATH = Paths.get(".kraken", "project.json").toString();
+  private static final String PROJECT_PATH = Paths.get("project.json").toString();
 
   @NonNull StorageClientBuilder storageClientBuilder;
   @NonNull EventBus eventBus;
   @NonNull IdGenerator idGenerator;
-  @NonNull ApplicationProperties properties;
 
   @Override
   public Mono<Project> get(final Owner owner) {
-    final var storageClientMono = this.currentStorageClient(owner, owner.getProjectId(), owner.getApplicationId());
+    final var storageClientMono = this.projectStorageClient(owner.getProjectId());
     return storageClientMono.flatMap(storageClient -> storageClient.getJsonContent(PROJECT_PATH, Project.class));
   }
 
   @Override
   public Flux<Project> list(final Owner owner) {
-    final var storageClientMono = this.projectsStorageClient(owner);
+    final var storageClientMono = this.userStorageClient();
     return storageClientMono.flatMapMany(storageClient ->
         storageClient.find("", 3, PROJECT_PATH)
             .flatMap(node -> storageClient.getJsonContent(node.getPath(), Project.class)));
@@ -61,10 +59,10 @@ final class StorageProjectCrudService implements ProjectCrudService {
         .applicationId(applicationId)
         .createDate(now)
         .updateDate(now)
-        .version(properties.getVersion())
         .build();
-    final var storageClientMono = this.currentStorageClient(owner, project.getId(), applicationId);
-    return storageClientMono.flatMap(storageClient -> storageClient.init().then(storageClient.setJsonContent(PROJECT_PATH, project)))
+    final var initApplication = this.applicationStorageClient(project.getId(), applicationId).flatMap(StorageClient::init);
+    final var createProjectJson = this.projectStorageClient(project.getId()).flatMap(storageClient -> storageClient.setJsonContent(PROJECT_PATH, project));
+    return initApplication.then(createProjectJson)
         .map(storageNode -> project)
         .doOnSubscribe(subscription -> this.eventBus.publish(CreateProjectEvent.builder()
             .owner(owner.toBuilder().applicationId(applicationId).projectId(project.getId()).build())
@@ -73,9 +71,12 @@ final class StorageProjectCrudService implements ProjectCrudService {
         );
   }
 
+  // TODO Import
+  // Same a create but init is replaced by git clone
+
   @Override
   public Mono<Project> update(final Owner owner, final Project project) {
-    final var storageClientMono = this.currentStorageClient(owner, project.getId(), project.getApplicationId());
+    final var storageClientMono = this.projectStorageClient(owner.getProjectId());
     return storageClientMono.flatMap(storageClient -> storageClient
         .getJsonContent(PROJECT_PATH, Project.class)
         .map(retrieved -> retrieved.toBuilder().name(project.getName()).updateDate(Instant.now().toEpochMilli()).build())
@@ -84,19 +85,26 @@ final class StorageProjectCrudService implements ProjectCrudService {
 
   @Override
   public Mono<Boolean> delete(final Owner owner, final Project project) {
-    final var storageClientMono = this.projectsStorageClient(owner);
+    final var storageClientMono = this.userStorageClient();
     return storageClientMono.flatMap(storageClient -> storageClient.delete(project.getId()))
         .doOnSubscribe(subscription -> this.eventBus.publish(DeleteProjectEvent.builder()
             .owner(owner.toBuilder().applicationId(project.getApplicationId()).projectId(project.getId()).build())
             .project(project).build()));
   }
 
-  private Mono<StorageClient> projectsStorageClient(final Owner owner) {
+  private Mono<StorageClient> userStorageClient() {
     // Returns a storageClient that works on all the user's projects
     return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION).build());
   }
 
-  private Mono<StorageClient> currentStorageClient(final Owner owner, final String projectId, final String applicationId) {
+  private Mono<StorageClient> projectStorageClient(final String projectId) {
+    // Current storage is the project's root (sibling of the application folder)
+    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
+        .projectId(projectId)
+        .build());
+  }
+
+  private Mono<StorageClient> applicationStorageClient(final String projectId, final String applicationId) {
     return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
         .projectId(projectId)
         .applicationId(applicationId)

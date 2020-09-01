@@ -1,7 +1,6 @@
 package com.octoperf.kraken.project.crud.storage;
 
 import com.google.common.collect.ImmutableList;
-import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.entity.ProjectTest;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -43,8 +42,6 @@ class StorageProjectCrudServiceTest {
   EventBus eventBus;
   @Mock
   IdGenerator idGenerator;
-  @Mock
-  ApplicationProperties properties;
   @Captor
   ArgumentCaptor<CreateProjectEvent> createProjectEventArgumentCaptor;
   @Captor
@@ -57,7 +54,7 @@ class StorageProjectCrudServiceTest {
 
   @BeforeEach
   void before() {
-    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator, properties);
+    service = new StorageProjectCrudService(storageClientBuilder, eventBus, idGenerator);
     owner = Owner.builder()
         .userId("userId")
         .roles(ImmutableList.of(KrakenRole.USER))
@@ -95,9 +92,7 @@ class StorageProjectCrudServiceTest {
     final var appId = "app";
     final var projectId = "projId";
     final var projectName = "projName";
-    final var version = "1.0.0";
     given(idGenerator.generate()).willReturn(projectId);
-    given(properties.getVersion()).willReturn(version);
 
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
@@ -117,7 +112,6 @@ class StorageProjectCrudServiceTest {
     assertThat(project.getId()).isEqualTo(projectId);
     assertThat(project.getName()).isEqualTo(projectName);
     assertThat(project.getApplicationId()).isEqualTo(appId);
-    assertThat(project.getVersion()).isEqualTo(version);
 
     assertThat(project).isEqualTo(projectArgumentCaptor.getValue());
 
