@@ -47,8 +47,10 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull StorageClient storageClient;
   @NonNull EventBus eventBus;
 
+  // TODO Deux opérations simple: descendre les sources, toutes les modifications locales sont écrasées (reset --hard)
+  //  add all, remove all, force push (toutes les modification remote sont écrasées)
 
-  // TODO Automatically call add/remove by listening to the storage
+  // TODO Automatically call add/remove by listening to the storage?
   public Mono<Void> add(final Optional<String> pattern) {
     return Mono.fromCallable(() -> git.add().addFilepattern(pattern.orElse(".")).call())
         .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
@@ -62,6 +64,10 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   public Mono<GitStatus> status() {
     return Mono.fromCallable(() -> git.status().call()).map(status -> {
+
+      // TODO Include this in the status
+      System.out.println(git.getRepository().getRepositoryState());
+
       final var diff = ImmutableMultimap.<String, GitFileStatus>builder();
       status.getAdded().forEach(path -> diff.put(path, GitFileStatus.ADDED));
       status.getChanged().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
@@ -100,6 +106,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     git.close();
   }
 
+  // TODO Set author from connected user
   public Mono<Void> commit(final String message) {
     return Mono.fromCallable(() -> git.commit().setMessage(message).call())
         .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
@@ -120,6 +127,12 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   public Mono<Void> push() {
     return Mono.fromCallable(() -> git.push().setTransportConfigCallback(transportConfigCallback).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Mono<Void> merge() {
+    return Mono.fromCallable(() -> git.merge().call())
         .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
         .then();
   }
@@ -169,14 +182,23 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   }
 
   // TODO Reset to head (file or whole repository)
+  //  git reset --hard HEAD
 
   // TODO keepTheirs
 
   // TODO keepOurs
 
-  // TODO startSync => status error si conflicts
-
-  // TODO endSync => error si toujours des soucis
+  // TODO Juste methode sync
+  // Depend du status du repo
+  // Status pour commencer
+  // Si conflits retourne
+  // add all UNTRACKED files
+  // Remove all MISSING files
+  // Commit with a message
+  // Pull
+  // Status pour check les conflits
+  // Si conflits retourne
+  // Utilisateur resoud les conflits soit a la main soit ... keep theirs / keep ours
 
   // SYNC:
   // 'add '.'
@@ -184,31 +206,6 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   // 'pull
 
   // status
-  // Ecouter les events storage + les events git => mettre a jour si il y'a des modifications
 
-
-  // https://stackoverflow.com/questions/28073266/how-to-use-jgit-to-push-changes-to-remote-with-oauth-access-token
-  // https://github.com/centic9/jgit-cookbook
-  // https://github.com/centic9/jgit-cookbook/blob/master/src/main/java/org/dstadler/jgit/porcelain/CloneRemoteRepositoryWithAuthentication.java
-  // https://stackoverflow.com/questions/23692747/specifying-ssh-key-for-jgit
-  // https://medium.com/keycloak/github-as-identity-provider-in-keyclaok-dca95a9d80ca
-  // https://stackoverflow.com/questions/28380719/how-to-use-jgit-to-clone-the-existing-repositories-to-new-github-instance
-  // https://docs.cachethq.io/docs/github-oauth-token#:~:text=Generate%20a%20new%20token,list%20of%20tokens%20from%20before.
-
-  // TODO initialize repository => created on the server, create all files (existing local source)
-  // TODO Handle merge conflicts
-  //  front can update files?
-  //  how to commit them once updated?
-  //  https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line
-
-  // SYNC:
-  // 'add '.'
-  // 'commit with a message
-  // 'pull
-  // 'status
-  // If conflicts => ask to resolve
-  // Mark as resolved => 'add the specified file
-  // 'rebase
-  // 'push
 
 }
