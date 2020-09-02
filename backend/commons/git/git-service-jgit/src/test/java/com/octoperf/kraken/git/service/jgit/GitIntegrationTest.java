@@ -1,8 +1,9 @@
-package com.octoperf.kraken.git;
+package com.octoperf.kraken.git.service.jgit;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.KeyPair;
+import com.octoperf.kraken.Application;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.RebaseCommand;
@@ -13,11 +14,19 @@ import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.util.FS;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = Application.class)
 @Tag("integration")
-class GitTest {
+public class GitIntegrationTest {
+
+
 
   // https://stackoverflow.com/questions/28073266/how-to-use-jgit-to-push-changes-to-remote-with-oauth-access-token
   // https://github.com/centic9/jgit-cookbook
@@ -134,5 +143,4 @@ class GitTest {
     // 'rebase
     // 'push
   }
-
 }

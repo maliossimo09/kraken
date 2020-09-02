@@ -12,14 +12,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>git-test</module>
         <module>git-entity</module>
         <module>git-service-api</module>
         <module>git-service-jgit</module>
         <module>git-server</module>
         <module>git-user-events-listener</module>
-        <module>git-credentials-api</module>
-        <module>git-credentials-jsch</module>
         <module>git-client-api</module>
         <module>git-client-spring</module>
     </modules>
