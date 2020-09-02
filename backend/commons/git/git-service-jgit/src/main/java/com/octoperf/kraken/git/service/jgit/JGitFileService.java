@@ -1,5 +1,6 @@
 package com.octoperf.kraken.git.service.jgit;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -26,6 +28,9 @@ import static lombok.AccessLevel.PRIVATE;
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class JGitFileService implements GitFileService {
+
+  private static final int MAX_EVENTS_SIZE = 500;
+  private static final Duration MAX_EVENTS_TIMEOUT_MS = Duration.ofMillis(5000);
 
   @NonNull Owner owner;
   @NonNull Path root;
@@ -57,30 +62,33 @@ final class JGitFileService implements GitFileService {
       status.getUntracked().forEach(path -> diff.put(path, GitFileStatus.UNTRACKED));
       status.getUntrackedFolders().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
 
-      // TODO add a Map of conflicts
-//      status.getConflictingStageState();
+      final var conflicts = ImmutableMap.<String, String>builder();
+      status.getConflictingStageState().forEach((key, value) -> conflicts.put(key, value.name()));
 
       return GitStatus.builder()
           .diff(diff.build())
+          .conflicts(conflicts.build())
           .hasUncommittedChanges(status.hasUncommittedChanges())
           .clean(status.isClean())
           .build();
     });
   }
 
-  public Flux<GitStatus> watchStatus(){
-    // Return status every N seconds min, when GitStatusUpdateEvent or StorageWatcherEvent happens
-
-    return null;
+  public Flux<GitStatus> watchStatus() {
+    final var gitEvents = this.eventBus.of(GitStatusUpdateEvent.class);
+    final var storageEvents = storageClient.watch();
+    return Flux.merge(gitEvents, storageEvents)
+        .windowTimeout(MAX_EVENTS_SIZE,MAX_EVENTS_TIMEOUT_MS )
+        .flatMap(busEventFlux -> this.status());
   }
 
   // TODO keepTheirs
 
   // TODO keepOurs
 
-  // startSync => status error si conflicts
+  // TODO startSync => status error si conflicts
 
-  // endSync => error si toujours des soucis
+  // TODO endSync => error si toujours des soucis
 
   // SYNC:
   // 'add '.'
