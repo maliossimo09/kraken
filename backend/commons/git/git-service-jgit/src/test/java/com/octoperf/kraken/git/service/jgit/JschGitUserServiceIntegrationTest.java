@@ -24,7 +24,7 @@ import static org.mockito.BDDMockito.given;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class JGitUserServiceIntegrationTest {
+public class JschGitUserServiceIntegrationTest {
 
   private static final String USER_ID = "userId";
   @Autowired

@@ -14,10 +14,18 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.RebaseCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Optional;
@@ -39,14 +47,17 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull StorageClient storageClient;
   @NonNull EventBus eventBus;
 
+
+  // TODO Automatically call add/remove by listening to the storage
   public Mono<Void> add(final Optional<String> pattern) {
     return Mono.fromCallable(() -> git.add().addFilepattern(pattern.orElse(".")).call())
         .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
         .then();
   }
-
-  public Mono<Void> markAsResolved(final String path) {
-    return this.add(Optional.of(path));
+  public Mono<Void> remove(final String path) {
+    return Mono.fromCallable(() -> git.rm().addFilepattern(path).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
   }
 
   public Mono<GitStatus> status() {
@@ -75,10 +86,12 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   }
 
   public Flux<GitStatus> watchStatus() {
+    // TODO add the current user to the GitStatusUpdateEvent and check that it matches
     final var gitEvents = this.eventBus.of(GitStatusUpdateEvent.class);
+    // TODO make the central storage watcher dispatch GitStatusUpdateEvents
     final var storageEvents = storageClient.watch();
     return Flux.merge(gitEvents, storageEvents)
-        .windowTimeout(MAX_EVENTS_SIZE,MAX_EVENTS_TIMEOUT_MS )
+        .windowTimeout(MAX_EVENTS_SIZE, MAX_EVENTS_TIMEOUT_MS)
         .flatMap(busEventFlux -> this.status());
   }
 
@@ -86,6 +99,76 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   public void close() {
     git.close();
   }
+
+  public Mono<Void> commit(final String message) {
+    return Mono.fromCallable(() -> git.commit().setMessage(message).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Mono<Void> fetch() {
+    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Mono<Void> pull() {
+    return Mono.fromCallable(() -> git.pull().setTransportConfigCallback(transportConfigCallback).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Mono<Void> push() {
+    return Mono.fromCallable(() -> git.push().setTransportConfigCallback(transportConfigCallback).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Mono<Void> rebase(final String operation) {
+    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
+    return Mono.fromCallable(() -> git.rebase().setOperation(RebaseCommand.Operation.valueOf(operation)).call())
+        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+        .then();
+  }
+
+  public Flux<String> log(final String path) {
+    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
+    return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
+        .flatMapMany(Flux::fromIterable)
+        .map(revCommit -> ObjectId.toString(revCommit.getId()) + "-" + revCommit.getFullMessage() + " Enc: " + revCommit.getEncoding() + "<=>" + revCommit.getCommitterIdent().getEmailAddress());
+  }
+
+
+  public Mono<String> cat(final String id, final String path) {
+    return Mono.fromCallable(() -> {
+      final var repo = git.getRepository();
+
+      // Resolve the revision specification
+      final ObjectId objectId = ObjectId.fromString(id);
+
+      // Makes it simpler to release the allocated resources in one go
+      try (final ObjectReader reader = repo.newObjectReader()) {
+        // Get the commit object for that revision
+        RevWalk walk = new RevWalk(reader);
+        RevCommit commit = walk.parseCommit(objectId);
+
+        // Get the revision's file tree
+        RevTree tree = commit.getTree();
+        // .. and narrow it down to the single file's path
+        TreeWalk treewalk = TreeWalk.forPath(reader, path, tree);
+
+        if (treewalk != null) {
+          // use the blob id to read the file's data
+          byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
+          return new String(data, StandardCharsets.UTF_8);
+        } else {
+          return "";
+        }
+      }
+    });
+  }
+
+  // TODO Reset to head (file or whole repository)
 
   // TODO keepTheirs
 
@@ -103,9 +186,6 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   // status
   // Ecouter les events storage + les events git => mettre a jour si il y'a des modifications
 
-  // TODO listVersions filePath
-
-  // TODO getFileContent filePath version
 
   // https://stackoverflow.com/questions/28073266/how-to-use-jgit-to-push-changes-to-remote-with-oauth-access-token
   // https://github.com/centic9/jgit-cookbook
@@ -116,111 +196,19 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   // https://docs.cachethq.io/docs/github-oauth-token#:~:text=Generate%20a%20new%20token,list%20of%20tokens%20from%20before.
 
   // TODO initialize repository => created on the server, create all files (existing local source)
-
   // TODO Handle merge conflicts
   //  front can update files?
   //  how to commit them once updated?
   //  https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/resolving-a-merge-conflict-using-the-command-line
 
-//  final SshSessionFactory sshSessionFactory = new JschConfigSessionFactory() {
-//    @Override
-//    protected JSch createDefaultJSch(FS fs) throws JSchException {
-//      final var jsch = super.createDefaultJSch(fs);
-//      jsch.addIdentity("/home/ubuntu/kraken/id_rsa");
-//      return jsch;
-//    }
-//  };
-//
-//  final TransportConfigCallback transportConfigCallback = transport -> {
-//    final SshTransport sshTransport = (SshTransport) transport;
-//    sshTransport.setSshSessionFactory(sshSessionFactory);
-//  };
-//
-//  @Test
-//  void jsch() throws Exception {
-//    final var filename = "/home/ubuntu/kraken/id_rsa";
-//    final var comment = "comment";
-//    JSch jsch = new JSch();
-//    com.jcraft.jsch.KeyPair kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA);
-//    kpair.writePrivateKey(filename);
-//    kpair.writePublicKey(filename + ".pub", comment);
-//    System.out.println("Finger print: " + kpair.getFingerPrint());
-//    kpair.dispose();
-//  }
-//
-//  @Test
-//  void cloneRepo() throws Exception {
-//    final CloneCommand command = new CloneCommand();
-//    command.setURI("git@github.com:geraldpereira/gatlingTest.git")
-//        .setDirectory(new File("testDir/gatling"))
-//        .setTransportConfigCallback(transportConfigCallback);
-//    command.call();
-//  }
-//
-//  @Test
-//  void fetch() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    System.out.println(git.fetch().setTransportConfigCallback(transportConfigCallback).call());
-//  }
-//
-//  @Test
-//  void pull() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    System.out.println(git.pull().setTransportConfigCallback(transportConfigCallback).call());
-//  }
-//
-//  @Test
-//  void push() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    System.out.println(git.push().setTransportConfigCallback(transportConfigCallback).call());
-//  }
-//
-//  @Test
-//  void commit() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    System.out.println(git.commit().setMessage("Kraken").call());
-//  }
-//
-//  @Test
-//  void addAll() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    git.add().addFilepattern(".").call();
-//  }
-//
-//  @Test
-//  void rebase() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    git.rebase().setOperation(RebaseCommand.Operation.CONTINUE).call();
-//
-//    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-//  }
-//
-//  @Test
-//  void status() throws Exception {
-//    Git git = Git.open(new File("testDir/gatling"));
-//    final var status = git.status().call();
-//    System.out.println(status.getIgnoredNotInIndex());
-//    System.out.println(status.getAdded());
-//    System.out.println(status.getConflicting());
-//    System.out.println(status.getUntracked());
-//    System.out.println(status.getUntrackedFolders());
-//    System.out.println(status.getChanged());
-//    System.out.println(status.getMissing());
-//    System.out.println(status.getUncommittedChanges());
-//    System.out.println(status.hasUncommittedChanges());
-//    System.out.println(status.getRemoved());
-//    System.out.println(status.isClean());
-//
-//
-//    // SYNC:
-//    // 'add '.'
-//    // 'commit with a message
-//    // 'pull
-//    // 'status
-//    // If conflicts => ask to resolve
-//    // Mark as resolved => 'add the specified file
-//    // 'rebase
-//    // 'push
-//  }
+  // SYNC:
+  // 'add '.'
+  // 'commit with a message
+  // 'pull
+  // 'status
+  // If conflicts => ask to resolve
+  // Mark as resolved => 'add the specified file
+  // 'rebase
+  // 'push
 
 }

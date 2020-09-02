@@ -31,6 +31,7 @@ final class JGitProjectService implements GitProjectService {
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
+    // TODO What to do if the app directory is not empty?
     final var cloneRepo =
         this.ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
           final var rootPath = ownerToPath.apply(owner);
