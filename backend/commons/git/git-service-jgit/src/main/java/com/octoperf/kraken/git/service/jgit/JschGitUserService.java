@@ -45,14 +45,21 @@ final class JschGitUserService implements GitUserService {
   public Mono<GitCredentials> initCredentials(final String userId) {
     return Mono.fromCallable(() -> {
       final var path = this.userIdToPath(userId);
+      // Create .ssh folder
+      final var sshFolder = path.toFile();
+      if (!sshFolder.exists() && !sshFolder.mkdirs()) {
+        throw new IllegalStateException("Failed to create .ssh folder");
+      }
+      // Write keys
       final var jsch = new JSch();
       final var keyPair = KeyPair.genKeyPair(jsch, KeyPair.RSA);
       keyPair.writePrivateKey(path.resolve(ID_RSA).toString());
       keyPair.writePublicKey(path.resolve(ID_RSA_PUB).toString(), userId);
-      log.info("Initialized SSH, Finger print: " + keyPair.getFingerPrint());
+      final var fingerPrint = keyPair.getFingerPrint();
+      log.info("Initialized SSH, Finger print: " + fingerPrint);
       keyPair.dispose();
-      return null;
-    }).flatMap(o -> this.getCredentials(userId));
+      return fingerPrint;
+    }).flatMap(fingerPrint -> this.getCredentials(userId));
   }
 
   @Override

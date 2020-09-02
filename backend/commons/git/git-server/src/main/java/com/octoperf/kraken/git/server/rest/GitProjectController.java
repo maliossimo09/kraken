@@ -38,10 +38,9 @@ class GitProjectController {
     return userProvider.getOwner(applicationId, projectId).flatMap(projectService::getConfiguration);
   }
 
-  @PostMapping("/disconnect")
+  @DeleteMapping("/disconnect")
   public Mono<Void> disconnect(@RequestHeader("ApplicationId") @Pattern(regexp = "[a-z0-9]*") final String applicationId,
-                               @RequestHeader(name = "ProjectId", required = false) final String projectId,
-                               @RequestBody() final GitConfiguration configuration) {
-    return userProvider.getOwner(applicationId, projectId).flatMap(owner -> projectService.disconnect(owner, configuration));
+                               @RequestHeader(name = "ProjectId", required = false) final String projectId) {
+    return userProvider.getOwner(applicationId, projectId).flatMap(projectService::disconnect);
   }
 }

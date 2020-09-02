@@ -43,6 +43,15 @@ public class ProjectController {
         .flatMap(owner -> projectCrudService.create(owner, applicationId, name));
   }
 
+  @PostMapping("/import")
+  public Mono<Project> importFromGit(@RequestParam("applicationId") final String applicationId,
+                                     @RequestParam("name") final String name,
+                                     @RequestParam("repositoryUrl") final String repositoryUrl) {
+    log.info(String.format("Create project %s", name));
+    return this.userProvider.getOwner("", "")
+        .flatMap(owner -> projectCrudService.importFromGit(owner, applicationId, name, repositoryUrl));
+  }
+
   @PutMapping()
   public Mono<Project> update(@RequestBody() final Project project) {
     log.info(String.format("Update project %s", project.getId()));

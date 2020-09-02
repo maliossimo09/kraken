@@ -75,7 +75,7 @@ final class StorageProjectCrudService implements ProjectCrudService {
         .createDate(now)
         .updateDate(now)
         .build();
-    final var initApplication = this.applicationStorageClient(project.getId(), applicationId).flatMap(storageClient -> storageClient.init(COPY));
+    final var initApplication = this.applicationStorageClient(project.getId(), applicationId).flatMap(storageClient -> storageClient.init(mode));
     final var createProjectJson = this.projectStorageClient(project.getId()).flatMap(storageClient -> storageClient.setJsonContent(PROJECT_PATH, project));
     return initApplication.then(createProjectJson)
         .map(storageNode -> project)

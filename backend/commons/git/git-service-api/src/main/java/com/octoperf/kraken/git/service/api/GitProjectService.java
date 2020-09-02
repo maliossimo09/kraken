@@ -10,6 +10,6 @@ public interface GitProjectService {
 
   Mono<GitConfiguration> getConfiguration(Owner owner);
 
-  Mono<Void> disconnect(Owner owner, GitConfiguration git);
+  Mono<Void> disconnect(Owner owner);
 
 }
