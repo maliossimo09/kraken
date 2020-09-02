@@ -47,8 +47,11 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull StorageClient storageClient;
   @NonNull EventBus eventBus;
 
-  // TODO Deux opérations simple: descendre les sources, toutes les modifications locales sont écrasées (reset --hard)
-  //  add all, remove all, force push (toutes les modification remote sont écrasées)
+  // TODO GitEvent owner: Owner, kind: 'REFRESH' | 'STATUS', GitStatusUpdateEvent | GitRefreshEvent (triggered when the files need to be updated)
+  //  Deux types d'events séparés sans container ce sera plus propre, le SSEController appellera les deux
+  // TODO Listener du storage en mode admin qui ecoute tous les events et re-dispatch ensuite des GitStatusUpdateEvent a la volée
+  // TODO Toutes les opérations possible avec tous leurs paramètres
+  //  Créer des objects pour chaque commande puis des CommandExecutors
 
   // TODO Automatically call add/remove by listening to the storage?
   public Mono<Void> add(final Optional<String> pattern) {
@@ -148,6 +151,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
     return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
         .flatMapMany(Flux::fromIterable)
+        // TODO Create GitLog object
         .map(revCommit -> ObjectId.toString(revCommit.getId()) + "-" + revCommit.getFullMessage() + " Enc: " + revCommit.getEncoding() + "<=>" + revCommit.getCommitterIdent().getEmailAddress());
   }
 
