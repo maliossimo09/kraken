@@ -24,7 +24,7 @@ public class GitAddCommand implements GitCommand {
 
   @Builder(toBuilder = true)
   private GitAddCommand(@NonNull List<String> filePatterns,
-                       @NonNull Optional<Boolean> update) {
+                        @NonNull Optional<Boolean> update) {
     this.filePatterns = filePatterns;
     this.update = update;
   }

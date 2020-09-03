@@ -35,8 +35,7 @@ final class GitAddCommandExecutor implements GitCommandExecutor {
       final var add = git.add();
       addCommand.getFilePatterns().forEach(add::addFilepattern);
       addCommand.getUpdate().ifPresent(add::setUpdate);
-      add.call();
-      return null;
-    });
+      return add.call();
+    }).then();
   }
 }

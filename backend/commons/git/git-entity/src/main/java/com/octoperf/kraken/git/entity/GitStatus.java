@@ -17,7 +17,7 @@ public class GitStatus {
   String repositoryStateDescription;
   Multimap<String, GitFileStatus> diff;
   Map<String, String> conflicts;
-  boolean hasUncommittedChanges;
+  boolean uncommittedChanges;
   boolean clean;
 
   @JsonCreator
@@ -26,7 +26,7 @@ public class GitStatus {
       @NonNull @JsonProperty("repositoryStateDescription") final String repositoryStateDescription,
       @NonNull @JsonProperty("diff") final Multimap<String, GitFileStatus> diff,
       @NonNull @JsonProperty("conflicts") final Map<String, String> conflicts,
-      @NonNull @JsonProperty("hasUncommittedChanges") final boolean hasUncommittedChanges,
+      @NonNull @JsonProperty("uncommittedChanges") final boolean uncommittedChanges,
       @NonNull @JsonProperty("clean") final boolean clean
   ) {
     super();
@@ -34,7 +34,7 @@ public class GitStatus {
     this.repositoryStateDescription = repositoryStateDescription;
     this.diff = diff;
     this.conflicts = conflicts;
-    this.hasUncommittedChanges = hasUncommittedChanges;
+    this.uncommittedChanges = uncommittedChanges;
     this.clean = clean;
   }
 }

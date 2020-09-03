@@ -108,7 +108,7 @@ class JGitFileServiceTest {
         .isEqualTo(GitStatus.builder()
             .diff(diff.build())
             .clean(false)
-            .hasUncommittedChanges(true)
+            .uncommittedChanges(true)
             .conflicts(ImmutableMap.of("conflict", "BOTH_ADDED"))
             .repositoryState("APPLY")
             .repositoryStateDescription("Apply mailbox")

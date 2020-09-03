@@ -12,7 +12,7 @@ class GitStatusTest {
       .repositoryStateDescription("repositoryStateDescription")
       .diff(ImmutableMultimap.of("path", GitFileStatus.CONFLICTING, "path", GitFileStatus.MODIFIED))
       .conflicts(ImmutableMap.of("key", "value"))
-      .hasUncommittedChanges(true)
+      .uncommittedChanges(true)
       .clean(false)
       .build();
 

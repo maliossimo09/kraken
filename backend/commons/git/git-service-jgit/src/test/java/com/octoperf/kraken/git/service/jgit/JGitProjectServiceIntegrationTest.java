@@ -33,10 +33,10 @@ import static org.mockito.BDDMockito.given;
 @Tag("integration")
 public class JGitProjectServiceIntegrationTest {
 
-  public static final String USER_ID = "userId";
-  public static final String APP_ID = "app";
-  public static final String PROJECT_ID = "project";
-  public static final Owner OWNER = Owner.builder()
+  private static final String USER_ID = "userId";
+  private static final String APP_ID = "app";
+  private static final String PROJECT_ID = "project";
+  private static final Owner OWNER = Owner.builder()
       .userId(USER_ID)
       .projectId(PROJECT_ID)
       .applicationId(APP_ID)

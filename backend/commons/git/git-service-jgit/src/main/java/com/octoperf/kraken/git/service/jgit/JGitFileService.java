@@ -1,5 +1,6 @@
 package com.octoperf.kraken.git.service.jgit;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.octoperf.kraken.git.entity.GitFileStatus;
@@ -28,7 +29,9 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -60,11 +63,10 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   }
 
   @Override
-  public Flux<GitLog> log(final String path) {
+  public Mono<List<GitLog>> log(final String path) {
     return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
-        .flatMapMany(Flux::fromIterable)
-        .map(revCommit ->
-            GitLog.builder()
+        .map(revCommits -> ImmutableList.copyOf(revCommits).stream()
+            .map(revCommit -> GitLog.builder()
                 .id(ObjectId.toString(revCommit.getId()))
                 .message(revCommit.getFullMessage())
                 .time(revCommit.getCommitTime())
@@ -72,7 +74,8 @@ final class JGitFileService implements GitFileService, AutoCloseable {
                 .encoding(revCommit.getEncoding().name())
                 .author(GitIdentity.builder().name(revCommit.getAuthorIdent().getName()).email(revCommit.getAuthorIdent().getEmailAddress()).build())
                 .committer(GitIdentity.builder().name(revCommit.getCommitterIdent().getName()).email(revCommit.getCommitterIdent().getEmailAddress()).build())
-                .build()
+                .build())
+            .collect(Collectors.toUnmodifiableList())
         );
   }
 
@@ -120,7 +123,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
           .repositoryStateDescription(repositoryState.getDescription())
           .diff(diff.build())
           .conflicts(conflicts.build())
-          .hasUncommittedChanges(status.hasUncommittedChanges())
+          .uncommittedChanges(status.hasUncommittedChanges())
           .clean(status.isClean())
           .build();
     });
