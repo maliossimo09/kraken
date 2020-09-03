@@ -4,7 +4,7 @@ import com.google.common.testing.NullPointerTester;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-class GitLogTest {
+public class GitLogTest {
 
   public static final GitLog GIT_LOG = GitLog.builder()
       .author(GitIdentityTest.GIT_IDENTITY)

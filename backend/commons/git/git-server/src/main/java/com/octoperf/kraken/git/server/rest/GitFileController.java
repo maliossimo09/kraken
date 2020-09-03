@@ -17,6 +17,7 @@ import java.util.List;
 
 import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @Slf4j
 @RestController
@@ -46,7 +47,7 @@ public class GitFileController {
     return this.gitFileService(applicationId, projectId).flatMap(gitFileService -> gitFileService.log(path));
   }
 
-  @PostMapping("/cat")
+  @PostMapping(value = "/cat", produces = TEXT_PLAIN_VALUE)
   public Mono<String> cat(@RequestHeader("ApplicationId") @Pattern(regexp = "[a-z0-9]*") final String applicationId,
                           @RequestHeader(name = "ProjectId") final String projectId,
                           @RequestBody() final GitLog log) {

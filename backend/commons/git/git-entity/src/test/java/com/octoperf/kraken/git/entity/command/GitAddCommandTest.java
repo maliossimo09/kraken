@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-class GitAddCommandTest {
+public class GitAddCommandTest {
 
   public static final GitAddCommand GIT_ADD_COMMAND = GitAddCommand.builder()
       .filePatterns(ImmutableList.of("pattern"))

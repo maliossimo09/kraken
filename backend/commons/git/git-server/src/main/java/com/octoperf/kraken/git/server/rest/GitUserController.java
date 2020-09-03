@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import static lombok.AccessLevel.PACKAGE;
 import static lombok.AccessLevel.PRIVATE;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @Slf4j
 @RestController
@@ -25,7 +26,7 @@ public class GitUserController {
   @NonNull GitUserService userService;
   @NonNull UserProvider userProvider;
 
-  @GetMapping("/publicKey")
+  @GetMapping(value = "/publicKey", produces = TEXT_PLAIN_VALUE)
   public Mono<String> getPublicKey() {
     return userProvider.getOwner("", "")
         .flatMap(owner -> userService.getCredentials(owner.getUserId()))
