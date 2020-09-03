@@ -19,5 +19,6 @@
         <module>git-user-events-listener</module>
         <module>git-client-api</module>
         <module>git-client-spring</module>
+        <module>git-storage-events-listener</module>
     </modules>
 </project>

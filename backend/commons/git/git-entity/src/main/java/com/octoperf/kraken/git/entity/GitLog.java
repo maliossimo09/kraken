@@ -11,23 +11,26 @@ import lombok.Value;
 public class GitLog {
   String id;
   long time;
-  String authorEmail;
-  String authorName;
+  GitIdentity author;
+  GitIdentity committer;
   String message;
   String encoding;
+  String path;
 
   @JsonCreator
   public GitLog(@NonNull @JsonProperty("id") final String id,
                 @NonNull @JsonProperty("time") final long time,
-                @NonNull @JsonProperty("authorEmail") final String authorEmail,
-                @NonNull @JsonProperty("authorName") final String authorName,
+                @NonNull @JsonProperty("author") final GitIdentity author,
+                @NonNull @JsonProperty("committer") final GitIdentity committer,
                 @NonNull @JsonProperty("message") final String message,
-                @NonNull @JsonProperty("encoding") final String encoding) {
+                @NonNull @JsonProperty("encoding") final String encoding,
+                @NonNull @JsonProperty("path") final String path) {
     this.id = id;
     this.time = time;
-    this.authorEmail = authorEmail;
-    this.authorName = authorName;
+    this.author = author;
+    this.committer = committer;
     this.message = message;
     this.encoding = encoding;
+    this.path = path;
   }
 }

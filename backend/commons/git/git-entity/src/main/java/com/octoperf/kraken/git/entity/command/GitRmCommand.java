@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Value
 @Builder(toBuilder = true)
-public class GitRmCommand {
+public class GitRmCommand implements GitCommand {
   List<String> filePatterns;
   Optional<Boolean> cached;
 

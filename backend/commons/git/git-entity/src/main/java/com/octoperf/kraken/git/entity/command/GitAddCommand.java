@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value
-public class GitAddCommand {
+public class GitAddCommand implements GitCommand {
   List<String> filePatterns;
   Optional<Boolean> update;
 

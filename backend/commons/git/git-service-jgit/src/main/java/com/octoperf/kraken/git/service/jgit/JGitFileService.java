@@ -3,32 +3,32 @@ package com.octoperf.kraken.git.service.jgit;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.octoperf.kraken.git.entity.GitFileStatus;
+import com.octoperf.kraken.git.entity.GitIdentity;
+import com.octoperf.kraken.git.entity.GitLog;
 import com.octoperf.kraken.git.entity.GitStatus;
+import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.event.GitRefreshStorageEvent;
 import com.octoperf.kraken.git.event.GitStatusUpdateEvent;
 import com.octoperf.kraken.git.service.api.GitFileService;
+import com.octoperf.kraken.git.service.jgit.command.GitCommandExecutor;
 import com.octoperf.kraken.security.entity.owner.Owner;
-import com.octoperf.kraken.storage.client.api.StorageClient;
 import com.octoperf.kraken.tools.event.bus.EventBus;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.RebaseCommand;
 import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Optional;
+import java.util.Map;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -44,8 +44,54 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull Path root;
   @NonNull Git git;
   @NonNull TransportConfigCallback transportConfigCallback;
-  @NonNull StorageClient storageClient;
   @NonNull EventBus eventBus;
+  @NonNull Map<Class<GitCommand>, GitCommandExecutor<GitCommand>> commandExecutors;
+
+  public Mono<Void> execute(final GitCommand command) {
+    final var executor = this.commandExecutors.get(command.getClass());
+    return executor.execute(this.git, this.transportConfigCallback, this.root, command)
+        .doFinally(signalType -> {
+          eventBus.publish(GitStatusUpdateEvent.builder().owner(owner).build());
+          if (executor.refreshStorage()) {
+            eventBus.publish(GitRefreshStorageEvent.builder().owner(owner).build());
+          }
+        });
+  }
+
+  public Flux<GitLog> log(final String path) {
+    return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
+        .flatMapMany(Flux::fromIterable)
+        .map(revCommit ->
+            GitLog.builder()
+                .id(ObjectId.toString(revCommit.getId()))
+                .message(revCommit.getFullMessage())
+                .time(revCommit.getCommitTime())
+                .path(path)
+                .encoding(revCommit.getEncodingName())
+                .author(GitIdentity.builder().name(revCommit.getAuthorIdent().getName()).email(revCommit.getAuthorIdent().getEmailAddress()).build())
+                .committer(GitIdentity.builder().name(revCommit.getCommitterIdent().getName()).email(revCommit.getCommitterIdent().getEmailAddress()).build())
+                .build()
+        );
+  }
+
+  public Mono<String> cat(final GitLog log) {
+    return Mono.fromCallable(() -> {
+      final var repo = git.getRepository();
+      final ObjectId objectId = ObjectId.fromString(log.getId());
+      try (final ObjectReader reader = repo.newObjectReader()) {
+        final var walk = new RevWalk(reader);
+        final var commit = walk.parseCommit(objectId);
+        final var tree = commit.getTree();
+        final var treeWalk = TreeWalk.forPath(reader, log.getPath(), tree);
+        if (treeWalk != null) {
+          final var data = reader.open(treeWalk.getObjectId(0)).getBytes();
+          return new String(data, log.getEncoding());
+        } else {
+          return "";
+        }
+      }
+    });
+  }
 
   // TODO GitEvent owner: Owner, kind: 'REFRESH' | 'STATUS', GitStatusUpdateEvent | GitRefreshEvent (triggered when the files need to be updated)
   //  Deux types d'events séparés sans container ce sera plus propre, le SSEController appellera les deux
@@ -53,24 +99,8 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   // TODO Toutes les opérations possible avec tous leurs paramètres
   //  Créer des objects pour chaque commande puis des CommandExecutors
 
-  // TODO Automatically call add/remove by listening to the storage?
-  public Mono<Void> add(final Optional<String> pattern) {
-    return Mono.fromCallable(() -> git.add().addFilepattern(pattern.orElse(".")).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-  public Mono<Void> remove(final String path) {
-    return Mono.fromCallable(() -> git.rm().addFilepattern(path).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
   public Mono<GitStatus> status() {
     return Mono.fromCallable(() -> git.status().call()).map(status -> {
-
-      // TODO Include this in the status
-      System.out.println(git.getRepository().getRepositoryState());
-
       final var diff = ImmutableMultimap.<String, GitFileStatus>builder();
       status.getAdded().forEach(path -> diff.put(path, GitFileStatus.ADDED));
       status.getChanged().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
@@ -85,7 +115,11 @@ final class JGitFileService implements GitFileService, AutoCloseable {
       final var conflicts = ImmutableMap.<String, String>builder();
       status.getConflictingStageState().forEach((key, value) -> conflicts.put(key, value.name()));
 
+      final var repositoryState = git.getRepository().getRepositoryState();
+
       return GitStatus.builder()
+          .repositoryState(repositoryState.name())
+          .repositoryStateDescription(repositoryState.getDescription())
           .diff(diff.build())
           .conflicts(conflicts.build())
           .hasUncommittedChanges(status.hasUncommittedChanges())
@@ -98,8 +132,8 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     // TODO add the current user to the GitStatusUpdateEvent and check that it matches
     final var gitEvents = this.eventBus.of(GitStatusUpdateEvent.class);
     // TODO make the central storage watcher dispatch GitStatusUpdateEvents
-    final var storageEvents = storageClient.watch();
-    return Flux.merge(gitEvents, storageEvents)
+//    final var storageEvents = storageClient.watch();
+    return gitEvents //Flux.merge(gitEvents, storageEvents)
         .windowTimeout(MAX_EVENTS_SIZE, MAX_EVENTS_TIMEOUT_MS)
         .flatMap(busEventFlux -> this.status());
   }
@@ -109,107 +143,46 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     git.close();
   }
 
-  // TODO Set author from connected user
-  public Mono<Void> commit(final String message) {
-    return Mono.fromCallable(() -> git.commit()..setMessage(message).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
+//  // TODO Set author from connected user
+//  public Mono<Void> commit(final String message) {
+//    return Mono.fromCallable(() -> git.commit()..setMessage(message).call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
+//
+//  public Mono<Void> fetch() {
+//    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
+//
+//  public Mono<Void> pull() {
+//    return Mono.fromCallable(() -> git.pull().setTransportConfigCallback(transportConfigCallback).call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
+//
+//  public Mono<Void> push() {
+//    return Mono.fromCallable(() -> git.push().setTransportConfigCallback(transportConfigCallback).call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
+//
+//  public Mono<Void> merge() {
+//    return Mono.fromCallable(() -> git.merge().call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
+//
+//  public Mono<Void> rebase(final String operation) {
+//    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
+//    return Mono.fromCallable(() -> git.rebase().setOperation(RebaseCommand.Operation.valueOf(operation)).call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
 
-  public Mono<Void> fetch() {
-    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
-  public Mono<Void> pull() {
-    return Mono.fromCallable(() -> git.pull().setTransportConfigCallback(transportConfigCallback).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
-  public Mono<Void> push() {
-    return Mono.fromCallable(() -> git.push().setTransportConfigCallback(transportConfigCallback).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
-  public Mono<Void> merge() {
-    return Mono.fromCallable(() -> git.merge().call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
-  public Mono<Void> rebase(final String operation) {
-    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-    return Mono.fromCallable(() -> git.rebase().setOperation(RebaseCommand.Operation.valueOf(operation)).call())
-        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-        .then();
-  }
-
-  public Flux<String> log(final String path) {
-    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-    return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
-        .flatMapMany(Flux::fromIterable)
-        // TODO Create GitLog object
-        .map(revCommit -> ObjectId.toString(revCommit.getId()) + "-" + revCommit.getFullMessage() + " Enc: " + revCommit.getEncoding() + "<=>" + revCommit.getCommitterIdent().getEmailAddress());
-  }
-
-
-  public Mono<String> cat(final String id, final String path) {
-    return Mono.fromCallable(() -> {
-      final var repo = git.getRepository();
-
-      // Resolve the revision specification
-      final ObjectId objectId = ObjectId.fromString(id);
-
-      // Makes it simpler to release the allocated resources in one go
-      try (final ObjectReader reader = repo.newObjectReader()) {
-        // Get the commit object for that revision
-        RevWalk walk = new RevWalk(reader);
-        RevCommit commit = walk.parseCommit(objectId);
-
-        // Get the revision's file tree
-        RevTree tree = commit.getTree();
-        // .. and narrow it down to the single file's path
-        TreeWalk treewalk = TreeWalk.forPath(reader, path, tree);
-
-        if (treewalk != null) {
-          // use the blob id to read the file's data
-          byte[] data = reader.open(treewalk.getObjectId(0)).getBytes();
-          return new String(data, StandardCharsets.UTF_8);
-        } else {
-          return "";
-        }
-      }
-    });
-  }
 
   // TODO Reset to head (file or whole repository)
   //  git reset --hard HEAD
-
-  // TODO keepTheirs
-
-  // TODO keepOurs
-
-  // TODO Juste methode sync
-  // Depend du status du repo
-  // Status pour commencer
-  // Si conflits retourne
-  // add all UNTRACKED files
-  // Remove all MISSING files
-  // Commit with a message
-  // Pull
-  // Status pour check les conflits
-  // Si conflits retourne
-  // Utilisateur resoud les conflits soit a la main soit ... keep theirs / keep ours
-
-  // SYNC:
-  // 'add '.'
-  // 'commit with a message
-  // 'pull
-
-  // status
-
 
 }

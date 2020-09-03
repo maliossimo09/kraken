@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 class GitStatusTest {
 
   public static final GitStatus GIT_STATUS = GitStatus.builder()
+      .repositoryState("repositoryState")
+      .repositoryStateDescription("repositoryStateDescription")
       .diff(ImmutableMultimap.of("path", GitFileStatus.CONFLICTING, "path", GitFileStatus.MODIFIED))
       .conflicts(ImmutableMap.of("key", "value"))
       .hasUncommittedChanges(true)

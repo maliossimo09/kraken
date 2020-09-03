@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Value
 @Builder(toBuilder = true)
-public class GitCommitCommand {
+public class GitCommitCommand implements GitCommand {
   String message;
   Optional<Boolean> all;
   List<String> only;

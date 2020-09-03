@@ -13,6 +13,8 @@ import java.util.Map;
 @Builder(toBuilder = true)
 public class GitStatus {
 
+  String repositoryState;
+  String repositoryStateDescription;
   Multimap<String, GitFileStatus> diff;
   Map<String, String> conflicts;
   boolean hasUncommittedChanges;
@@ -20,12 +22,16 @@ public class GitStatus {
 
   @JsonCreator
   GitStatus(
+      @NonNull @JsonProperty("repositoryState") final String repositoryState,
+      @NonNull @JsonProperty("repositoryStateDescription") final String repositoryStateDescription,
       @NonNull @JsonProperty("diff") final Multimap<String, GitFileStatus> diff,
       @NonNull @JsonProperty("conflicts") final Map<String, String> conflicts,
       @NonNull @JsonProperty("hasUncommittedChanges") final boolean hasUncommittedChanges,
       @NonNull @JsonProperty("clean") final boolean clean
   ) {
     super();
+    this.repositoryState = repositoryState;
+    this.repositoryStateDescription = repositoryStateDescription;
     this.diff = diff;
     this.conflicts = conflicts;
     this.hasUncommittedChanges = hasUncommittedChanges;

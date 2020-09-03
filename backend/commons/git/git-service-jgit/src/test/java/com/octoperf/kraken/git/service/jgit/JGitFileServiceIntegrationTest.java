@@ -16,9 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
-import java.util.Optional;
 
 import static com.octoperf.kraken.git.service.jgit.JGitProjectServiceIntegrationTest.OWNER;
 import static org.mockito.ArgumentMatchers.any;
@@ -65,17 +62,17 @@ public class JGitFileServiceIntegrationTest {
     System.out.println(status);
   }
 
-  @Test
-  void shouldAdd() {
-    StepVerifier.create(gitFileService.add(Optional.of("README.md")))
-        .expectComplete();
-  }
-
-  @Test
-  void shouldCommit() {
-    StepVerifier.create(gitFileService.commit("Update"))
-        .expectComplete();
-  }
+//  @Test
+//  void shouldAdd() {
+//    StepVerifier.create(gitFileService.add(Optional.of("README.md")))
+//        .expectComplete();
+//  }
+//
+//  @Test
+//  void shouldCommit() {
+//    StepVerifier.create(gitFileService.commit("Update"))
+//        .expectComplete();
+//  }
 
   @Test
   void shouldLog() {
@@ -83,9 +80,4 @@ public class JGitFileServiceIntegrationTest {
     System.out.println(ids);
   }
 
-  @Test
-  void shouldCat() {
-    final var cat = gitFileService.cat("6590e547f321546525cae30aa1bd23dc55cb3722", "README.md").block();
-    System.out.println(cat);
-  }
 }
