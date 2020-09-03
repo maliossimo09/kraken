@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-class GitStatusTest {
+public class GitStatusTest {
 
   public static final GitStatus GIT_STATUS = GitStatus.builder()
       .repositoryState("repositoryState")

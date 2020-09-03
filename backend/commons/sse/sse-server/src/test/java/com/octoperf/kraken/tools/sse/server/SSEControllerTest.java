@@ -2,8 +2,12 @@ package com.octoperf.kraken.tools.sse.server;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import com.octoperf.kraken.runtime.client.api.RuntimeWatchClient;
-import com.octoperf.kraken.runtime.client.api.RuntimeWatchClientBuilder;
+import com.octoperf.kraken.git.client.api.GitClient;
+import com.octoperf.kraken.git.client.api.GitClientBuilder;
+import com.octoperf.kraken.git.entity.GitStatusTest;
+import com.octoperf.kraken.git.event.GitRefreshStorageEventTest;
+import com.octoperf.kraken.runtime.client.api.RuntimeClient;
+import com.octoperf.kraken.runtime.client.api.RuntimeClientBuilder;
 import com.octoperf.kraken.runtime.entity.log.LogTest;
 import com.octoperf.kraken.runtime.entity.task.TaskTest;
 import com.octoperf.kraken.security.authentication.api.AuthenticationMode;
@@ -37,13 +41,17 @@ public class SSEControllerTest extends AuthControllerTest {
   @MockBean
   SSEService sse;
   @MockBean
-  RuntimeWatchClientBuilder runtimeClientBuilder;
+  RuntimeClientBuilder runtimeClientBuilder;
   @MockBean
-  RuntimeWatchClient runtimeClient;
+  RuntimeClient runtimeClient;
   @MockBean
   StorageClientBuilder storageClientBuilder;
   @MockBean
   StorageClient storageClient;
+  @MockBean
+  GitClientBuilder gitClientBuilder;
+  @MockBean
+  GitClient gitClient;
 
   @BeforeEach
   public void setUp() throws IOException {
@@ -54,6 +62,9 @@ public class SSEControllerTest extends AuthControllerTest {
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
         .projectId(projectId)
         .applicationId(applicationId).build())).willReturn(Mono.just(storageClient));
+    given(gitClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
+        .projectId(projectId)
+        .applicationId(applicationId).build())).willReturn(Mono.just(gitClient));
   }
 
   @Test
@@ -68,6 +79,8 @@ public class SSEControllerTest extends AuthControllerTest {
     given(runtimeClient.watchLogs()).willReturn(Flux.just(LogTest.LOG));
     given(runtimeClient.watchTasks()).willReturn(Flux.just(ImmutableList.of(TaskTest.TASK)));
     given(storageClient.watch()).willReturn(Flux.just(StorageWatcherEventTest.STORAGE_WATCHER_EVENT));
+    given(gitClient.watchStatus()).willReturn(Flux.just(GitStatusTest.GIT_STATUS));
+    given(gitClient.watchRefresh()).willReturn(Flux.just(GitRefreshStorageEventTest.GIT_REFRESH_STORAGE_EVENT));
 
     final var result = webTestClient.get()
         .uri(uriBuilder -> uriBuilder.path("/sse/watch").build())

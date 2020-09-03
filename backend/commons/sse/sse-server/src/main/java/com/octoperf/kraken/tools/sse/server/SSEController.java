@@ -1,7 +1,8 @@
 package com.octoperf.kraken.tools.sse.server;
 
 import com.google.common.collect.ImmutableMap;
-import com.octoperf.kraken.runtime.client.api.RuntimeWatchClientBuilder;
+import com.octoperf.kraken.git.client.api.GitClientBuilder;
+import com.octoperf.kraken.runtime.client.api.RuntimeClientBuilder;
 import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClientBuildOrder;
 import com.octoperf.kraken.storage.client.api.StorageClientBuilder;
 import com.octoperf.kraken.tools.sse.SSEService;
@@ -33,28 +34,29 @@ import static com.octoperf.kraken.security.authentication.api.AuthenticationMode
 public class SSEController {
 
   @NonNull SSEService sse;
-  @NonNull RuntimeWatchClientBuilder runtimeClientBuilder;
+  @NonNull RuntimeClientBuilder runtimeClientBuilder;
   @NonNull StorageClientBuilder storageClientBuilder;
+  @NonNull GitClientBuilder gitClientBuilder;
 
   @GetMapping(value = "/watch")
   public Flux<ServerSentEvent<SSEWrapper>> watch(@RequestHeader("ApplicationId") @Pattern(regexp = "[a-z0-9]*") final String applicationId,
                                                  @RequestHeader("ProjectId") @Pattern(regexp = "[a-z0-9]{10}") final String projectId) {
-    final var storageClient = storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
+    final var order = AuthenticatedClientBuildOrder.builder()
         .mode(SESSION)
         .applicationId(applicationId)
         .projectId(projectId)
-        .build());
-    final var runtimeClient = runtimeClientBuilder.build(AuthenticatedClientBuildOrder.builder()
-        .mode(SESSION)
-        .applicationId(applicationId)
-        .projectId(projectId)
-        .build());
-    return Mono.zip(storageClient, runtimeClient)
+        .build();
+    final var storageClient = storageClientBuilder.build(order);
+    final var runtimeClient = runtimeClientBuilder.build(order);
+    final var gitClient = gitClientBuilder.build(order);
+    return Mono.zip(storageClient, runtimeClient, gitClient)
         .flatMapMany(clients ->
             sse.keepAlive(sse.merge(ImmutableMap.of(
                 "NODE", clients.getT1().watch(),
                 "LOG", clients.getT2().watchLogs(),
-                "TASKS", clients.getT2().watchTasks()
+                "TASKS", clients.getT2().watchTasks(),
+                "GIT_STATUS", clients.getT3().watchStatus(),
+                "GIT_REFRESH", clients.getT3().watchRefresh()
             ))))
         .map(event -> {
           log.debug(event.toString());

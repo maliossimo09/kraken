@@ -4,7 +4,7 @@ import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-class GitRefreshStorageEventTest {
+public class GitRefreshStorageEventTest {
 
   public static final GitRefreshStorageEvent GIT_REFRESH_STORAGE_EVENT = GitRefreshStorageEvent.builder()
       .owner(Owner.PUBLIC).build();
