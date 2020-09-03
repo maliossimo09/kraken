@@ -45,8 +45,9 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull Git git;
   @NonNull TransportConfigCallback transportConfigCallback;
   @NonNull EventBus eventBus;
-  @NonNull Map<Class<GitCommand>, GitCommandExecutor<GitCommand>> commandExecutors;
+  @NonNull Map<String, GitCommandExecutor> commandExecutors;
 
+  @Override
   public Mono<Void> execute(final GitCommand command) {
     final var executor = this.commandExecutors.get(command.getClass());
     return executor.execute(this.git, this.transportConfigCallback, this.root, command)
@@ -58,6 +59,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
         });
   }
 
+  @Override
   public Flux<GitLog> log(final String path) {
     return Mono.fromCallable(() -> git.log().addPath(path).setMaxCount(100).call())
         .flatMapMany(Flux::fromIterable)
@@ -74,6 +76,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
         );
   }
 
+  @Override
   public Mono<String> cat(final GitLog log) {
     return Mono.fromCallable(() -> {
       final var repo = git.getRepository();
@@ -93,11 +96,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     });
   }
 
-  // TODO Toutes les opérations possible avec tous leurs paramètres
-  //  Créer des objects pour chaque commande puis des CommandExecutors
-  //  Gérer la déserializatiuon
-  // TODO Creer le controller REST
-
+  @Override
   public Mono<GitStatus> status() {
     return Mono.fromCallable(() -> git.status().call()).map(status -> {
       final var diff = ImmutableMultimap.<String, GitFileStatus>builder();
@@ -127,6 +126,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     });
   }
 
+  @Override
   public Flux<GitStatus> watchStatus() {
     return this.eventBus.of(GitStatusUpdateEvent.class)
         .filter(event -> event.getOwner().equals(owner))
@@ -134,6 +134,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
         .flatMap(window -> this.status());
   }
 
+  @Override
   public Flux<GitRefreshStorageEvent> watchRefresh() {
     return this.eventBus.of(GitRefreshStorageEvent.class)
         .filter(event -> event.getOwner().equals(owner))
@@ -146,6 +147,9 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     git.close();
   }
 
+
+  // TODO Toutes les opérations possible avec tous leurs paramètres
+  //  Créer des objects pour chaque commande puis des CommandExecutors
 //  public Mono<Void> fetch() {
 //    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))

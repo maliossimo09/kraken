@@ -24,12 +24,12 @@ public class GitAddCommandJacksonTest {
   public void shouldDeSerialize() throws IOException {
     final var object = GitAddCommandTest.GIT_ADD_COMMAND;
     final String json = mapper.writeValueAsString(object);
-    Assertions.assertThat(mapper.readValue(json, GitAddCommand.class)).isEqualTo(object);
+    Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
   }
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{}", GitAddCommand.class)).isEqualTo(GitAddCommand.builder()
+    Assertions.assertThat(mapper.readValue("{\"type\": \"add\"}", GitCommand.class)).isEqualTo(GitAddCommand.builder()
         .filePatterns(ImmutableList.of())
         .update(Optional.empty())
         .build());

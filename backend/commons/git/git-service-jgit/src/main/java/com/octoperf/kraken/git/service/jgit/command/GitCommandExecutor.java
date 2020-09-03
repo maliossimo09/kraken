@@ -7,14 +7,14 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Path;
 
-public interface GitCommandExecutor<T extends GitCommand> {
+public interface GitCommandExecutor {
 
-  Class<T> getCommandClass();
+  String getCommandClass();
 
   Mono<Void> execute(Git git,
                      TransportConfigCallback transportConfigCallback,
                      Path root,
-                     T command);
+                     GitCommand command);
 
   default boolean refreshStorage() {
     return false;

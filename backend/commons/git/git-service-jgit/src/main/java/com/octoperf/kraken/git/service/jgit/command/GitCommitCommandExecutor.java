@@ -1,5 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
+import com.octoperf.kraken.git.entity.command.GitCommand;
 import com.octoperf.kraken.git.entity.command.GitCommitCommand;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import lombok.AllArgsConstructor;
@@ -19,30 +20,31 @@ import static lombok.AccessLevel.PRIVATE;
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class GitCommitCommandExecutor implements GitCommandExecutor<GitCommitCommand> {
+final class GitCommitCommandExecutor implements GitCommandExecutor {
 
   @NonNull UserProvider userProvider;
 
   @Override
-  public Class<GitCommitCommand> getCommandClass() {
-    return GitCommitCommand.class;
+  public String getCommandClass() {
+    return GitCommitCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
                             final TransportConfigCallback transportConfigCallback,
                             final Path root,
-                            final GitCommitCommand command) {
+                            final GitCommand command) {
     return userProvider.getAuthenticatedUser().flatMap(user -> Mono.fromCallable(() -> {
+      final var commitCommand = (GitCommitCommand) command;
       final var commit = git.commit();
-      commit.setMessage(command.getMessage());
+      commit.setMessage(commitCommand.getMessage());
       commit.setCommitter(user.getUsername(), user.getEmail());
       commit.setAuthor(user.getUsername(), user.getEmail());
-      command.getAll().ifPresent(commit::setAll);
-      command.getOnly().forEach(commit::setOnly);
-      command.getAmend().ifPresent(commit::setAmend);
-      command.getAllowEmpty().ifPresent(commit::setAllowEmpty);
-      command.getNoVerify().ifPresent(commit::setNoVerify);
+      commitCommand.getAll().ifPresent(commit::setAll);
+      commitCommand.getOnly().forEach(commit::setOnly);
+      commitCommand.getAmend().ifPresent(commit::setAmend);
+      commitCommand.getAllowEmpty().ifPresent(commit::setAllowEmpty);
+      commitCommand.getNoVerify().ifPresent(commit::setNoVerify);
       commit.call();
       return null;
     }));

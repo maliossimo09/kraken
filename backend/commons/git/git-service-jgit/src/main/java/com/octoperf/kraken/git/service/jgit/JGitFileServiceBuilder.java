@@ -1,6 +1,5 @@
 package com.octoperf.kraken.git.service.jgit;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
 import com.octoperf.kraken.git.service.api.GitFileService;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.jgit.command.GitCommandExecutor;
@@ -14,7 +13,9 @@ import org.eclipse.jgit.api.Git;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -28,15 +29,14 @@ final class JGitFileServiceBuilder implements GitFileServiceBuilder {
   @NonNull OwnerToTransportConfig ownerToTransportConfig;
   @NonNull OwnerToPath ownerToPath;
   @NonNull EventBus eventBus;
-  @NonNull List<GitCommandExecutor<GitCommand>> commandExecutors;
+  @NonNull List<GitCommandExecutor> commandExecutors;
+  @NonNull Function<Path, Mono<Git>> gitFactory;
 
   @Override
   public Mono<GitFileService> build(final Owner owner) {
-    return ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
-      final var root = this.ownerToPath.apply(owner);
-      final var git = Git.open(root.toFile());
-      final var map = commandExecutors.stream().collect(Collectors.toMap(GitCommandExecutor::getCommandClass, executor -> executor));
-      return new JGitFileService(owner, root, git, transportConfigCallback, eventBus, map);
-    }));
+    final var root = this.ownerToPath.apply(owner);
+    final var map = commandExecutors.stream().collect(Collectors.toMap(GitCommandExecutor::getCommandClass, executor -> executor));
+    return Mono.zip(gitFactory.apply(root), ownerToTransportConfig.apply(owner))
+        .map(t2 -> new JGitFileService(owner, root, t2.getT1(), t2.getT2(), eventBus, map));
   }
 }

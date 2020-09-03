@@ -1,5 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
+import com.octoperf.kraken.git.entity.command.GitCommand;
 import com.octoperf.kraken.git.entity.command.GitRmCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,22 +18,23 @@ import static lombok.AccessLevel.PRIVATE;
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class GitRmCommandExecutor implements GitCommandExecutor<GitRmCommand> {
+final class GitRmCommandExecutor implements GitCommandExecutor {
 
   @Override
-  public Class<GitRmCommand> getCommandClass() {
-    return GitRmCommand.class;
+  public String getCommandClass() {
+    return GitRmCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
                             final TransportConfigCallback transportConfigCallback,
                             final Path root,
-                            final GitRmCommand command) {
+                            final GitCommand command) {
     return Mono.fromCallable(() -> {
+      final var rmCommand = (GitRmCommand) command;
       final var rm = git.rm();
-      command.getFilePatterns().forEach(rm::addFilepattern);
-      command.getCached().ifPresent(rm::setCached);
+      rmCommand.getFilePatterns().forEach(rm::addFilepattern);
+      rmCommand.getCached().ifPresent(rm::setCached);
       rm.call();
       return null;
     });

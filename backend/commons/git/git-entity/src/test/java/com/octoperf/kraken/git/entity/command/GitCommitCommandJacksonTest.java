@@ -24,12 +24,12 @@ public class GitCommitCommandJacksonTest {
   public void shouldDeSerialize() throws IOException {
     final var object = GitCommitCommandTest.GIT_COMMIT_COMMAND;
     final String json = mapper.writeValueAsString(object);
-    Assertions.assertThat(mapper.readValue(json, GitCommitCommand.class)).isEqualTo(object);
+    Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
   }
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"message\": \"message\"}", GitCommitCommand.class)).isEqualTo(GitCommitCommand.builder()
+    Assertions.assertThat(mapper.readValue("{\"type\": \"commit\", \"message\": \"message\"}", GitCommand.class)).isEqualTo(GitCommitCommand.builder()
         .only(ImmutableList.of())
         .message("message")
         .noVerify(Optional.empty())
