@@ -108,8 +108,20 @@ public class FileSystemStorageServiceIntegrationTest {
 
   @Test
   public void shouldInitEmpty() throws IOException {
-    // TODO
-    assertThat(true).isFalse();
+    final var path = Path.of("testDir", "users", "user", "project-id", "gatling");
+    assertThat(path.toFile().exists()).isFalse();
+    final var serviceUser =serviceBuilder.build(Owner.builder().applicationId("gatling")
+        .userId("user")
+        .projectId("project-id")
+        .roles(ImmutableList.of(KrakenRole.USER))
+        .type(OwnerType.USER)
+        .build());
+    create(serviceUser.init(StorageInitMode.EMPTY))
+        .expectComplete()
+        .verify();
+    assertThat(path.toFile().exists()).isTrue();
+    assertThat(path.resolve("README.md").toFile().exists()).isFalse();
+    FileSystemUtils.deleteRecursively(Path.of("testDir", "users"));
   }
 
   @Test

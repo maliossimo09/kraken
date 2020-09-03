@@ -24,7 +24,7 @@ public class GitRmCommand {
   }
 
   @Builder(toBuilder = true)
-  public GitRmCommand(@NonNull List<String> filePatterns,
+  private GitRmCommand(@NonNull List<String> filePatterns,
                       @NonNull Optional<Boolean> cached) {
     this.filePatterns = filePatterns;
     this.cached = cached;

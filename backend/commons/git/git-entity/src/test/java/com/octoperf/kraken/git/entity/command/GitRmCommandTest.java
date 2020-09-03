@@ -6,21 +6,21 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-class GitAddCommandTest {
+class GitRmCommandTest {
 
-  public static final GitAddCommand GIT_ADD_COMMAND = GitAddCommand.builder()
+  public static final GitRmCommand GIT_RM_COMMAND = GitRmCommand.builder()
       .filePatterns(ImmutableList.of("pattern"))
-      .update(Optional.of(true))
+      .cached(Optional.of(true))
       .build();
 
 
   @Test
   public void shouldPassEquals() {
-    TestUtils.shouldPassEquals(GIT_ADD_COMMAND.getClass());
+    TestUtils.shouldPassEquals(GIT_RM_COMMAND.getClass());
   }
 
   @Test
   public void shouldPassString() {
-    TestUtils.shouldPassToString(GIT_ADD_COMMAND.getClass());
+    TestUtils.shouldPassToString(GIT_RM_COMMAND.getClass());
   }
 }

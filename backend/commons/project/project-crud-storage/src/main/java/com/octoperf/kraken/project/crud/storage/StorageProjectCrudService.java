@@ -5,7 +5,6 @@ import com.octoperf.kraken.project.crud.api.ProjectCrudService;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
 import com.octoperf.kraken.project.event.DeleteProjectEvent;
-import com.octoperf.kraken.security.authentication.api.AuthenticationMode;
 import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClientBuildOrder;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.storage.client.api.StorageClient;
@@ -24,6 +23,7 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Paths;
 import java.time.Instant;
 
+import static com.octoperf.kraken.security.authentication.api.AuthenticationMode.SESSION;
 import static com.octoperf.kraken.storage.entity.StorageInitMode.COPY;
 import static com.octoperf.kraken.storage.entity.StorageInitMode.EMPTY;
 import static lombok.AccessLevel.PRIVATE;
@@ -62,8 +62,9 @@ final class StorageProjectCrudService implements ProjectCrudService {
 
   @Override
   public Mono<Project> importFromGit(final Owner owner, final String applicationId, final String name, final String repositoryUrl) {
-    final var connect = this.gitClientBuilder.build(AuthenticatedClientBuildOrder.builder().build()).flatMap(gitClient -> gitClient.connect(repositoryUrl));
-    return this.createProject(owner, applicationId, name, EMPTY).flatMap(project -> connect.map(gitConfiguration -> project));
+    return this.createProject(owner, applicationId, name, EMPTY).flatMap(project -> this.gitClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(SESSION).projectId(project.getId()).applicationId(project.getApplicationId()).build())
+        .flatMap(gitClient -> gitClient.connect(repositoryUrl))
+        .map(gitConfiguration -> project));
   }
 
   private Mono<Project> createProject(final Owner owner, final String applicationId, final String name, final StorageInitMode mode) {
@@ -88,7 +89,7 @@ final class StorageProjectCrudService implements ProjectCrudService {
 
   @Override
   public Mono<Project> update(final Owner owner, final Project project) {
-    final var storageClientMono = this.projectStorageClient(owner.getProjectId());
+    final var storageClientMono = this.projectStorageClient(project.getId());
     return storageClientMono.flatMap(storageClient -> storageClient
         .getJsonContent(PROJECT_PATH, Project.class)
         .map(retrieved -> retrieved.toBuilder().name(project.getName()).updateDate(Instant.now().toEpochMilli()).build())
@@ -106,18 +107,18 @@ final class StorageProjectCrudService implements ProjectCrudService {
 
   private Mono<StorageClient> userStorageClient() {
     // Returns a storageClient that works on all the user's projects
-    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION).build());
+    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(SESSION).build());
   }
 
   private Mono<StorageClient> projectStorageClient(final String projectId) {
     // Current storage is the project's root (sibling of the application folder)
-    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
+    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(SESSION)
         .projectId(projectId)
         .build());
   }
 
   private Mono<StorageClient> applicationStorageClient(final String projectId, final String applicationId) {
-    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(AuthenticationMode.SESSION)
+    return this.storageClientBuilder.build(AuthenticatedClientBuildOrder.builder().mode(SESSION)
         .projectId(projectId)
         .applicationId(applicationId)
         .build());

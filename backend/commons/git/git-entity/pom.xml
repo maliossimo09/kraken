@@ -19,6 +19,11 @@
         </dependency>
         <dependency>
             <groupId>com.octoperf.kraken</groupId>
+            <artifactId>security-entity</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.octoperf.kraken</groupId>
             <artifactId>tools-configuration-jackson</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>

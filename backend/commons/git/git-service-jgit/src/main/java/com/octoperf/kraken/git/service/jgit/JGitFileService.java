@@ -111,7 +111,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   // TODO Set author from connected user
   public Mono<Void> commit(final String message) {
-    return Mono.fromCallable(() -> git.commit().setMessage(message).call())
+    return Mono.fromCallable(() -> git.commit()..setMessage(message).call())
         .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
         .then();
   }

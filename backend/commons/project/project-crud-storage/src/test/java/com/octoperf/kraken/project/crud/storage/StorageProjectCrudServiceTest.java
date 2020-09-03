@@ -1,7 +1,9 @@
 package com.octoperf.kraken.project.crud.storage;
 
 import com.google.common.collect.ImmutableList;
+import com.octoperf.kraken.git.client.api.GitClient;
 import com.octoperf.kraken.git.client.api.GitClientBuilder;
+import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.project.entity.Project;
 import com.octoperf.kraken.project.entity.ProjectTest;
 import com.octoperf.kraken.project.event.CreateProjectEvent;
@@ -46,6 +48,8 @@ class StorageProjectCrudServiceTest {
   IdGenerator idGenerator;
   @Mock
   GitClientBuilder gitClientBuilder;
+  @Mock
+  GitClient gitClient;
   @Captor
   ArgumentCaptor<CreateProjectEvent> createProjectEventArgumentCaptor;
   @Captor
@@ -98,9 +102,15 @@ class StorageProjectCrudServiceTest {
     final var projectName = "projName";
     given(idGenerator.generate()).willReturn(projectId);
 
+    // To write files in the application
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
         .applicationId(appId)
+        .projectId(projectId)
+        .build())).willReturn(Mono.just(storageClient));
+    // To write files at the project level
+    given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
+        .mode(AuthenticationMode.SESSION)
         .projectId(projectId)
         .build())).willReturn(Mono.just(storageClient));
 
@@ -126,7 +136,49 @@ class StorageProjectCrudServiceTest {
 
   @Test
   void shouldImportProject() {
-    assertThat(false).isTrue();
+    final var appId = "app";
+    final var projectId = "projId";
+    final var projectName = "projName";
+    final var repoUrl = "repoUrl";
+    given(idGenerator.generate()).willReturn(projectId);
+
+    // To write files in the application
+    given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
+        .mode(AuthenticationMode.SESSION)
+        .applicationId(appId)
+        .projectId(projectId)
+        .build())).willReturn(Mono.just(storageClient));
+    // To write files at the project level
+    given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
+        .mode(AuthenticationMode.SESSION)
+        .projectId(projectId)
+        .build())).willReturn(Mono.just(storageClient));
+
+    given(storageClient.init(StorageInitMode.EMPTY)).willReturn(Mono.empty());
+    given(storageClient.setJsonContent(eq("project.json"), any(Project.class))).willReturn(Mono.just(StorageNodeTest.STORAGE_NODE));
+
+    given(gitClientBuilder.build(AuthenticatedClientBuildOrder.builder()
+        .mode(AuthenticationMode.SESSION)
+        .projectId(projectId)
+        .applicationId(appId)
+        .build())).willReturn(Mono.just(gitClient));
+    given(gitClient.connect(repoUrl)).willReturn(Mono.just(GitConfiguration.builder().repositoryUrl(repoUrl).build()));
+
+    final var project = service.importFromGit(owner, appId, projectName, repoUrl).block();
+    verify(storageClient).init(StorageInitMode.EMPTY);
+    verify(storageClient).setJsonContent(eq("project.json"), projectArgumentCaptor.capture());
+    verify(eventBus).publish(createProjectEventArgumentCaptor.capture());
+
+    assertThat(project).isNotNull();
+    assertThat(project.getId()).isEqualTo(projectId);
+    assertThat(project.getName()).isEqualTo(projectName);
+    assertThat(project.getApplicationId()).isEqualTo(appId);
+
+    assertThat(project).isEqualTo(projectArgumentCaptor.getValue());
+
+    final var event = createProjectEventArgumentCaptor.getValue();
+    assertThat(event.getProject()).isEqualTo(project);
+    assertThat(event.getOwner()).isEqualTo(owner.toBuilder().applicationId(appId).projectId(projectId).build());
   }
 
   @Test
@@ -136,7 +188,6 @@ class StorageProjectCrudServiceTest {
     given(storageClientBuilder.build(AuthenticatedClientBuildOrder.builder()
         .mode(AuthenticationMode.SESSION)
         .projectId(project.getId())
-        .applicationId(project.getApplicationId())
         .build())).willReturn(Mono.just(storageClient));
     given(storageClient.getJsonContent("project.json", Project.class)).willReturn(Mono.just(project));
     given(storageClient.setJsonContent(eq("project.json"), any(Project.class))).willReturn(Mono.just(StorageNodeTest.STORAGE_NODE));

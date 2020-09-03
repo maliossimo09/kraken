@@ -23,7 +23,7 @@ public class GitAddCommand {
   }
 
   @Builder(toBuilder = true)
-  public GitAddCommand(@NonNull List<String> filePatterns,
+  private GitAddCommand(@NonNull List<String> filePatterns,
                        @NonNull Optional<Boolean> update) {
     this.filePatterns = filePatterns;
     this.update = update;

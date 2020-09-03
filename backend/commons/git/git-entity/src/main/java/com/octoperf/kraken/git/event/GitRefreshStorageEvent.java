@@ -8,16 +8,16 @@ import lombok.NonNull;
 import lombok.Value;
 
 /**
- * Git status must be refreshed
+ * Git made modifications on the file system, a refresh should be made to update the UI
  */
 @Value
 @Builder(toBuilder = true)
-public class GitStatusUpdateEvent implements GitEvent {
+public class GitRefreshStorageEvent implements GitEvent {
 
   @NonNull Owner owner;
 
   @JsonCreator
-  GitStatusUpdateEvent(
+  GitRefreshStorageEvent(
       @NonNull @JsonProperty("owner") final Owner owner
   ) {
     super();
