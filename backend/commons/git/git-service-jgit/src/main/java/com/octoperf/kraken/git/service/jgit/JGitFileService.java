@@ -95,6 +95,8 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   // TODO Toutes les opérations possible avec tous leurs paramètres
   //  Créer des objects pour chaque commande puis des CommandExecutors
+  //  Gérer la déserializatiuon
+  // TODO Creer le controller REST
 
   public Mono<GitStatus> status() {
     return Mono.fromCallable(() -> git.status().call()).map(status -> {

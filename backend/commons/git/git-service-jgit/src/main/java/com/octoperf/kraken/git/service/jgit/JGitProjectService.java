@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Supplier;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -29,6 +30,8 @@ final class JGitProjectService implements GitProjectService {
 
   @NonNull OwnerToTransportConfig ownerToTransportConfig;
   @NonNull OwnerToPath ownerToPath;
+  @NonNull Supplier<CloneCommand> commandSupplier;
+  @NonNull Supplier<FileRepositoryBuilder> repositoryBuilderSupplier;
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
@@ -36,7 +39,7 @@ final class JGitProjectService implements GitProjectService {
         this.ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
           // Clone into a temporary folder
           final var tmp = Files.createTempDirectory(owner.getUserId());
-          final CloneCommand command = new CloneCommand();
+          final var command = commandSupplier.get();;
           command.setURI(repositoryUrl)
               .setDirectory(tmp.toFile())
               .setTransportConfigCallback(transportConfigCallback);
@@ -56,10 +59,10 @@ final class JGitProjectService implements GitProjectService {
   }
 
   @Override
-  public Mono<GitConfiguration> getConfiguration(Owner owner) {
+  public Mono<GitConfiguration> getConfiguration(final Owner owner) {
     final var rootPath = ownerToPath.apply(owner);
     return Mono.fromCallable(() -> {
-      final var repositoryBuilder = new FileRepositoryBuilder();
+      final var repositoryBuilder = this.repositoryBuilderSupplier.get(); //new FileRepositoryBuilder();
       repositoryBuilder.setMustExist(true);
       repositoryBuilder.setGitDir(rootPath.resolve(".git").toFile());
       final var repository = repositoryBuilder.build();

@@ -4,6 +4,7 @@ import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitCredentials;
 import com.octoperf.kraken.git.service.api.GitUserService;
+import com.octoperf.kraken.security.authentication.api.UserProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ public class JschGitUserServiceIntegrationTest {
 
   @MockBean
   ApplicationProperties properties;
+
+  @MockBean
+  UserProvider userProvider;
 
   GitCredentials created = null;
 

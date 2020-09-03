@@ -3,7 +3,7 @@ package com.octoperf.kraken.git.entity;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-class GitCredentialsTest {
+public class GitCredentialsTest {
 
   public static final GitCredentials GIT_CREDENTIALS = GitCredentials.builder()
       .privateKey("private")
