@@ -62,6 +62,8 @@ public class JGitFileServiceIntegrationTest {
     System.out.println(status);
   }
 
+  // TODO init local repository without remote pour test log et cat
+
 //  @Test
 //  void shouldAdd() {
 //    StepVerifier.create(gitFileService.add(Optional.of("README.md")))

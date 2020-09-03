@@ -49,9 +49,9 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   @Override
   public Mono<Void> execute(final GitCommand command) {
-    final var executor = this.commandExecutors.get(command.getClass());
+    final var executor = this.commandExecutors.get(command.getClass().getSimpleName());
     return executor.execute(this.git, this.transportConfigCallback, this.root, command)
-        .doFinally(signalType -> {
+        .doOnTerminate(() -> {
           eventBus.publish(GitStatusUpdateEvent.builder().owner(owner).build());
           if (executor.refreshStorage()) {
             eventBus.publish(GitRefreshStorageEvent.builder().owner(owner).build());
@@ -69,7 +69,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
                 .message(revCommit.getFullMessage())
                 .time(revCommit.getCommitTime())
                 .path(path)
-                .encoding(revCommit.getEncodingName())
+                .encoding(revCommit.getEncoding().name())
                 .author(GitIdentity.builder().name(revCommit.getAuthorIdent().getName()).email(revCommit.getAuthorIdent().getEmailAddress()).build())
                 .committer(GitIdentity.builder().name(revCommit.getCommitterIdent().getName()).email(revCommit.getCommitterIdent().getEmailAddress()).build())
                 .build()
@@ -108,7 +108,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
       status.getModified().forEach(path -> diff.put(path, GitFileStatus.MODIFIED));
       status.getRemoved().forEach(path -> diff.put(path, GitFileStatus.REMOVED));
       status.getUntracked().forEach(path -> diff.put(path, GitFileStatus.UNTRACKED));
-      status.getUntrackedFolders().forEach(path -> diff.put(path, GitFileStatus.CHANGED));
+      status.getUntrackedFolders().forEach(path -> diff.put(path, GitFileStatus.UNTRACKED));
 
       final var conflicts = ImmutableMap.<String, String>builder();
       status.getConflictingStageState().forEach((key, value) -> conflicts.put(key, value.name()));
