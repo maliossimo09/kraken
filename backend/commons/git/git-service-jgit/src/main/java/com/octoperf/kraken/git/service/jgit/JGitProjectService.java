@@ -62,7 +62,7 @@ final class JGitProjectService implements GitProjectService {
   public Mono<GitConfiguration> getConfiguration(final Owner owner) {
     final var rootPath = ownerToPath.apply(owner);
     return Mono.fromCallable(() -> {
-      final var repositoryBuilder = this.repositoryBuilderSupplier.get(); //new FileRepositoryBuilder();
+      final var repositoryBuilder = this.repositoryBuilderSupplier.get();
       repositoryBuilder.setMustExist(true);
       repositoryBuilder.setGitDir(rootPath.resolve(".git").toFile());
       final var repository = repositoryBuilder.build();
