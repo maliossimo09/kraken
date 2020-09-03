@@ -5,6 +5,7 @@ import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.service.api.GitProjectService;
 import com.octoperf.kraken.git.service.api.GitUserService;
+import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
 import org.assertj.core.api.Assertions;
@@ -51,6 +52,9 @@ public class JGitProjectServiceIntegrationTest {
 
   @MockBean
   ApplicationProperties properties;
+
+  @MockBean
+  UserProvider userProvider;
 
   Path projectPath;
   Path repoPath;

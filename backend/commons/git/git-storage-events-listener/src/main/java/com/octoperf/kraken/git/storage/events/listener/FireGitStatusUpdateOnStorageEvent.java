@@ -26,5 +26,6 @@ final class FireGitStatusUpdateOnStorageEvent extends EventBusListener<StorageWa
   @Override
   protected void handleEvent(final StorageWatcherEvent event) {
     eventBus.publish(GitStatusUpdateEvent.builder().owner(event.getOwner()).build());
+    // TODO Automatically add/rm files on git
   }
 }

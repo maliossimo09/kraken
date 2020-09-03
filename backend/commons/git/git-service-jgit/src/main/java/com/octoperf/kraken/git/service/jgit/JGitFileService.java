@@ -37,7 +37,7 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class JGitFileService implements GitFileService, AutoCloseable {
 
-  private static final int MAX_EVENTS_SIZE = 500;
+  private static final int MAX_EVENTS_SIZE = 100;
   private static final Duration MAX_EVENTS_TIMEOUT_MS = Duration.ofMillis(5000);
 
   @NonNull Owner owner;
@@ -93,9 +93,6 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     });
   }
 
-  // TODO GitEvent owner: Owner, kind: 'REFRESH' | 'STATUS', GitStatusUpdateEvent | GitRefreshEvent (triggered when the files need to be updated)
-  //  Deux types d'events séparés sans container ce sera plus propre, le SSEController appellera les deux
-  // TODO Listener du storage en mode admin qui ecoute tous les events et re-dispatch ensuite des GitStatusUpdateEvent a la volée
   // TODO Toutes les opérations possible avec tous leurs paramètres
   //  Créer des objects pour chaque commande puis des CommandExecutors
 
@@ -129,13 +126,17 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   }
 
   public Flux<GitStatus> watchStatus() {
-    // TODO add the current user to the GitStatusUpdateEvent and check that it matches
-    final var gitEvents = this.eventBus.of(GitStatusUpdateEvent.class);
-    // TODO make the central storage watcher dispatch GitStatusUpdateEvents
-//    final var storageEvents = storageClient.watch();
-    return gitEvents //Flux.merge(gitEvents, storageEvents)
+    return this.eventBus.of(GitStatusUpdateEvent.class)
+        .filter(event -> event.getOwner().equals(owner))
         .windowTimeout(MAX_EVENTS_SIZE, MAX_EVENTS_TIMEOUT_MS)
-        .flatMap(busEventFlux -> this.status());
+        .flatMap(window -> this.status());
+  }
+
+  public Flux<GitRefreshStorageEvent> watchRefresh() {
+    return this.eventBus.of(GitRefreshStorageEvent.class)
+        .filter(event -> event.getOwner().equals(owner))
+        .windowTimeout(MAX_EVENTS_SIZE, MAX_EVENTS_TIMEOUT_MS)
+        .flatMap(window -> window.reduce((event1, event2) -> event2));
   }
 
   @Override
@@ -143,13 +144,6 @@ final class JGitFileService implements GitFileService, AutoCloseable {
     git.close();
   }
 
-//  // TODO Set author from connected user
-//  public Mono<Void> commit(final String message) {
-//    return Mono.fromCallable(() -> git.commit()..setMessage(message).call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-//
 //  public Mono<Void> fetch() {
 //    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))

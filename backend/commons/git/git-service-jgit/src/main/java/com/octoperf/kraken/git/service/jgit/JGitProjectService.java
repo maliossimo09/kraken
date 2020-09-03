@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -31,19 +32,27 @@ final class JGitProjectService implements GitProjectService {
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
-    // TODO What to do if the app directory is not empty?
     final var cloneRepo =
         this.ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
-          final var rootPath = ownerToPath.apply(owner);
+          // Clone into a temporary folder
+          final var tmp = Files.createTempDirectory(owner.getUserId());
           final CloneCommand command = new CloneCommand();
           command.setURI(repositoryUrl)
-              .setDirectory(rootPath.toFile())
+              .setDirectory(tmp.toFile())
               .setTransportConfigCallback(transportConfigCallback);
           command.call();
-          return null;
+          return tmp;
         }));
 
-    return cloneRepo.then(this.getConfiguration(owner));
+    return cloneRepo
+        .flatMap(tmp -> Mono.fromCallable(() -> {
+          // Copy the cloned repo to the application and remove the tmp folder
+          final var rootPath = ownerToPath.apply(owner);
+          FileSystemUtils.copyRecursively(tmp, rootPath);
+          FileSystemUtils.deleteRecursively(tmp);
+          return null;
+        }))
+        .then(this.getConfiguration(owner));
   }
 
   @Override
