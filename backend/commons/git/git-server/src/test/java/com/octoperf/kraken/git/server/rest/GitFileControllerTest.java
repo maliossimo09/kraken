@@ -45,7 +45,7 @@ public class GitFileControllerTest extends AuthControllerTest {
 
   @Test
   public void shouldExecute() {
-    final var command = GitAddCommandTest.GIT_ADD_COMMAND;
+    final var command = GitAddCommandTest.COMMAND;
     given(gitFileService.execute(command)).willReturn(Mono.empty());
 
     webTestClient.post()

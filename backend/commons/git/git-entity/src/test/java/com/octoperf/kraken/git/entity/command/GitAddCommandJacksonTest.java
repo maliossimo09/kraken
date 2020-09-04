@@ -22,7 +22,7 @@ public class GitAddCommandJacksonTest {
 
   @Test
   public void shouldDeSerialize() throws IOException {
-    final var object = GitAddCommandTest.GIT_ADD_COMMAND;
+    final var object = GitAddCommandTest.COMMAND;
     final String json = mapper.writeValueAsString(object);
     Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
   }

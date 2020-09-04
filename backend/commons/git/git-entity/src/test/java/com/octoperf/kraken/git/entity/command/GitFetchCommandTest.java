@@ -1,20 +1,16 @@
 package com.octoperf.kraken.git.entity.command;
 
-import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-public class GitCommitCommandTest {
+public class GitFetchCommandTest {
 
-  public static final GitCommitCommand COMMAND = GitCommitCommand.builder()
-      .message("message")
-      .all(Optional.of(true))
-      .allowEmpty(Optional.empty())
-      .amend(Optional.empty())
-      .noVerify(Optional.empty())
-      .only(ImmutableList.of("only"))
+  public static final GitFetchCommand COMMAND = GitFetchCommand.builder()
+      .remote(Optional.of("master"))
+      .forceUpdate(Optional.of(false))
+      .dryRun(Optional.empty())
       .build();
 
 

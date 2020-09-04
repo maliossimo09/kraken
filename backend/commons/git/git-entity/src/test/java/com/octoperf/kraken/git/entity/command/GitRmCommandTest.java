@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-class GitRmCommandTest {
+public class GitRmCommandTest {
 
-  public static final GitRmCommand GIT_RM_COMMAND = GitRmCommand.builder()
+  public static final GitRmCommand COMMAND = GitRmCommand.builder()
       .filePatterns(ImmutableList.of("pattern"))
       .cached(Optional.of(true))
       .build();
@@ -16,11 +16,11 @@ class GitRmCommandTest {
 
   @Test
   public void shouldPassEquals() {
-    TestUtils.shouldPassEquals(GIT_RM_COMMAND.getClass());
+    TestUtils.shouldPassEquals(COMMAND.getClass());
   }
 
   @Test
   public void shouldPassString() {
-    TestUtils.shouldPassToString(GIT_RM_COMMAND.getClass());
+    TestUtils.shouldPassToString(COMMAND.getClass());
   }
 }

@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
 import com.octoperf.kraken.git.entity.command.GitCommand;
-import com.octoperf.kraken.git.entity.command.GitRmCommand;
+import com.octoperf.kraken.git.entity.command.GitFetchCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +16,11 @@ import static lombok.AccessLevel.PRIVATE;
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class GitRmCommandExecutor implements GitCommandExecutor {
+final class GitFetchCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitRmCommand.class.getSimpleName();
+    return GitFetchCommand.class.getSimpleName();
   }
 
   @Override
@@ -28,17 +28,13 @@ final class GitRmCommandExecutor implements GitCommandExecutor {
                             final TransportConfigCallback transportConfigCallback,
                             final GitCommand command) {
     return Mono.fromCallable(() -> {
-      final var rmCommand = (GitRmCommand) command;
-      final var rm = git.rm();
-      rmCommand.getFilePatterns().forEach(rm::addFilepattern);
-      rmCommand.getCached().ifPresent(rm::setCached);
-      rm.call();
+      final var fetchCommand = (GitFetchCommand) command;
+      final var fetch = git.fetch();
+      fetchCommand.getForceUpdate().ifPresent(fetch::setForceUpdate);
+      fetchCommand.getRemote().ifPresent(fetch::setRemote);
+      fetchCommand.getDryRun().ifPresent(fetch::setDryRun);
+      fetch.call();
       return null;
     });
-  }
-
-  @Override
-  public boolean refreshStorage() {
-    return true;
   }
 }

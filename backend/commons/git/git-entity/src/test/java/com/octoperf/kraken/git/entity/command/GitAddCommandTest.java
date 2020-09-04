@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class GitAddCommandTest {
 
-  public static final GitAddCommand GIT_ADD_COMMAND = GitAddCommand.builder()
+  public static final GitAddCommand COMMAND = GitAddCommand.builder()
       .filePatterns(ImmutableList.of("pattern"))
       .update(Optional.of(true))
       .build();
@@ -16,11 +16,11 @@ public class GitAddCommandTest {
 
   @Test
   public void shouldPassEquals() {
-    TestUtils.shouldPassEquals(GIT_ADD_COMMAND.getClass());
+    TestUtils.shouldPassEquals(COMMAND.getClass());
   }
 
   @Test
   public void shouldPassString() {
-    TestUtils.shouldPassToString(GIT_ADD_COMMAND.getClass());
+    TestUtils.shouldPassToString(COMMAND.getClass());
   }
 }

@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = GitAddCommand.class, name = "add"),
     @JsonSubTypes.Type(value = GitCommitCommand.class, name = "commit"),
-    @JsonSubTypes.Type(value = GitRmCommand.class, name = "rm")
+    @JsonSubTypes.Type(value = GitRmCommand.class, name = "rm"),
+    @JsonSubTypes.Type(value = GitFetchCommand.class, name = "fetch"),
 })
 public interface GitCommand {
 }

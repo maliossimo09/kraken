@@ -53,7 +53,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @Override
   public Mono<Void> execute(final GitCommand command) {
     final var executor = this.commandExecutors.get(command.getClass().getSimpleName());
-    return executor.execute(this.git, this.transportConfigCallback, this.root, command)
+    return executor.execute(this.git, this.transportConfigCallback, command)
         .doOnTerminate(() -> {
           eventBus.publish(GitStatusUpdateEvent.builder().owner(owner).build());
           if (executor.refreshStorage()) {

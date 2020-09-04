@@ -12,8 +12,6 @@ import org.eclipse.jgit.api.TransportConfigCallback;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Path;
-
 import static lombok.AccessLevel.PRIVATE;
 
 @Slf4j
@@ -32,7 +30,6 @@ final class GitCommitCommandExecutor implements GitCommandExecutor {
   @Override
   public Mono<Void> execute(final Git git,
                             final TransportConfigCallback transportConfigCallback,
-                            final Path root,
                             final GitCommand command) {
     return userProvider.getAuthenticatedUser().flatMap(user -> Mono.fromCallable(() -> {
       final var commitCommand = (GitCommitCommand) command;

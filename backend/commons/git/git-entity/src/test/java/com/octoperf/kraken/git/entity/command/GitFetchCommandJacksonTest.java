@@ -1,7 +1,6 @@
 package com.octoperf.kraken.git.entity.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.Application;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,27 +14,24 @@ import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class GitCommitCommandJacksonTest {
+public class GitFetchCommandJacksonTest {
 
   @Autowired
   private ObjectMapper mapper;
 
   @Test
   public void shouldDeSerialize() throws IOException {
-    final var object = GitCommitCommandTest.COMMAND;
+    final var object = GitFetchCommandTest.COMMAND;
     final String json = mapper.writeValueAsString(object);
     Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
   }
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"commit\", \"message\": \"message\"}", GitCommand.class)).isEqualTo(GitCommitCommand.builder()
-        .only(ImmutableList.of())
-        .message("message")
-        .noVerify(Optional.empty())
-        .amend(Optional.empty())
-        .allowEmpty(Optional.empty())
-        .all(Optional.empty())
+    Assertions.assertThat(mapper.readValue("{\"type\": \"fetch\"}", GitCommand.class)).isEqualTo(GitFetchCommand.builder()
+        .remote(Optional.empty())
+        .forceUpdate(Optional.empty())
+        .dryRun(Optional.empty())
         .build());
   }
 }
