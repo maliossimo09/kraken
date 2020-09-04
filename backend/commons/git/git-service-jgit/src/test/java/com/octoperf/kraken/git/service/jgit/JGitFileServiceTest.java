@@ -27,9 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -39,7 +36,6 @@ import static org.mockito.Mockito.verify;
 class JGitFileServiceTest {
 
   private static final Owner OWNER = OwnerTest.USER_OWNER;
-  private static final Path PATH = Paths.get("testDir");
 
   @Mock
   Git git;
@@ -64,7 +60,6 @@ class JGitFileServiceTest {
   void setUp() {
     given(commandExecutor.getCommandClass()).willReturn(command.getClass().getSimpleName());
     service = new JGitFileService(OWNER,
-        PATH,
         git,
         transportConfigCallback,
         eventBus,

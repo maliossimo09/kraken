@@ -27,7 +27,6 @@ import org.eclipse.jgit.treewalk.TreeWalk;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,6 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   private static final Duration MAX_EVENTS_TIMEOUT_MS = Duration.ofMillis(5000);
 
   @NonNull Owner owner;
-  @NonNull Path root;
   @NonNull Git git;
   @NonNull TransportConfigCallback transportConfigCallback;
   @NonNull EventBus eventBus;

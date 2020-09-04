@@ -37,6 +37,6 @@ final class JGitFileServiceBuilder implements GitFileServiceBuilder {
     final var root = this.ownerToPath.apply(owner);
     final var map = commandExecutors.stream().collect(Collectors.toMap(GitCommandExecutor::getCommandClass, executor -> executor));
     return Mono.zip(gitFactory.apply(root), ownerToTransportConfig.apply(owner))
-        .map(t2 -> new JGitFileService(owner, root, t2.getT1(), t2.getT2(), eventBus, map));
+        .map(t2 -> new JGitFileService(owner, t2.getT1(), t2.getT2(), eventBus, map));
   }
 }
