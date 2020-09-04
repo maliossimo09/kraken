@@ -153,37 +153,64 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   // TODO Toutes les opérations possible avec tous leurs paramètres
   //  Créer des objects pour chaque commande puis des CommandExecutors
-//  public Mono<Void> fetch() {
-//    return Mono.fromCallable(() -> git.fetch().setTransportConfigCallback(transportConfigCallback).call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
 //
 //  public Mono<Void> pull() {
-//    return Mono.fromCallable(() -> git.pull().setTransportConfigCallback(transportConfigCallback).call())
+//    return Mono.fromCallable(() -> git.pull()
+//        .setStrategy()
+//        .setRebase()
+//        .setFastForward()
+//        .setRemote()
+//        .setTransportConfigCallback(transportConfigCallback).call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
 //        .then();
 //  }
 //
 //  public Mono<Void> push() {
-//    return Mono.fromCallable(() -> git.push().setTransportConfigCallback(transportConfigCallback).call())
+//    return Mono.fromCallable(() -> git.push()
+//        .setPushOptions()
+//        .setRemote()
+//        .setForce()
+//        .setDryRun()
+//        .setAtomic()
+//        .setTransportConfigCallback(transportConfigCallback).call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
 //        .then();
 //  }
 //
 //  public Mono<Void> merge() {
-//    return Mono.fromCallable(() -> git.merge().call())
+//    return Mono.fromCallable(() -> git.merge()
+//        .setMessage()
+//        .setSquash()
+//        .setFastForward()
+//        .setCommit()
+//        .setStrategy()
+//        .call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
 //        .then();
 //  }
 //
 //  public Mono<Void> rebase(final String operation) {
 //    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-//    return Mono.fromCallable(() -> git.rebase().setOperation(RebaseCommand.Operation.valueOf(operation)).call())
+//    return Mono.fromCallable(() -> git.rebase()
+//        .setUpstream()
+//        .setPreserveMerges()
+//        .setStrategy()
+//        .setOperation(RebaseCommand.Operation.valueOf(operation)).call())
 //        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
 //        .then();
 //  }
 
+//  public Mono<Void> reset(final String operation) {
+//    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
+//    return Mono.fromCallable(() -> git.reset()
+//        .setRef()
+//        .setMode()
+//        .addPath()
+//        .
+//        .call())
+//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
+//        .then();
+//  }
 
   // TODO Reset to head (file or whole repository)
   //  git reset --hard HEAD

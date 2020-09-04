@@ -42,7 +42,7 @@ echo:
 
 # SONAR
 sonar-start:
-	docker run -d --name sonarqube -p 9000:9000 sonarqube:lts
+	docker run -d --rm --name sonarqube -p 9000:9000 sonarqube:lts
 
 sonar:
 	./mvnw clean verify -fn
