@@ -7,7 +7,6 @@ import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import com.octoperf.kraken.tools.event.bus.EventBus;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -24,10 +23,6 @@ import static org.mockito.BDDMockito.given;
 class JGitFileServiceBuilderTest {
 
   @Mock
-  OwnerToTransportConfig ownerToTransportConfig;
-  @Mock
-  TransportConfigCallback transportConfigCallback;
-  @Mock
   OwnerToPath ownerToPath;
   @Mock
   EventBus eventBus;
@@ -41,8 +36,7 @@ class JGitFileServiceBuilderTest {
   @Test
   void shouldBuild() {
     final var owner = OwnerTest.USER_OWNER;
-    final var builder = new JGitFileServiceBuilder(ownerToTransportConfig,
-        ownerToPath,
+    final var builder = new JGitFileServiceBuilder(ownerToPath,
         eventBus,
         ImmutableList.of(commandExecutor),
         gitFactory);
@@ -50,7 +44,6 @@ class JGitFileServiceBuilderTest {
     given(commandExecutor.getCommandClass()).willReturn(GitCommand.class.getSimpleName());
     given(ownerToPath.apply(owner)).willReturn(root);
     given(gitFactory.apply(root)).willReturn(Mono.just(git));
-    given(ownerToTransportConfig.apply(owner)).willReturn(Mono.just(transportConfigCallback));
     Assertions.assertThat(builder.build(owner)).isNotNull();
   }
 }

@@ -15,7 +15,6 @@ import com.octoperf.kraken.tools.event.bus.EventBus;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.StatusCommand;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.lib.IndexDiff;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.RepositoryState;
@@ -40,8 +39,6 @@ class JGitFileServiceTest {
   @Mock
   Git git;
   @Mock
-  TransportConfigCallback transportConfigCallback;
-  @Mock
   EventBus eventBus;
   @Mock
   GitCommandExecutor commandExecutor;
@@ -61,7 +58,6 @@ class JGitFileServiceTest {
     given(commandExecutor.getCommandClass()).willReturn(command.getClass().getSimpleName());
     service = new JGitFileService(OWNER,
         git,
-        transportConfigCallback,
         eventBus,
         ImmutableMap.of(commandExecutor.getCommandClass(), commandExecutor));
   }
@@ -69,7 +65,7 @@ class JGitFileServiceTest {
   @Test
   void shouldExecute() {
     given(commandExecutor.refreshStorage()).willReturn(false);
-    given(commandExecutor.execute(git, transportConfigCallback, command)).willReturn(Mono.empty());
+    given(commandExecutor.execute(git, command)).willReturn(Mono.empty());
     service.execute(command).block();
     verify(eventBus).publish(GitStatusUpdateEvent.builder().owner(OWNER).build());
     verify(eventBus, never()).publish(GitRefreshStorageEvent.builder().owner(OWNER).build());
@@ -78,7 +74,7 @@ class JGitFileServiceTest {
   @Test
   void shouldExecuteRefresh() {
     given(commandExecutor.refreshStorage()).willReturn(true);
-    given(commandExecutor.execute(git, transportConfigCallback, command)).willReturn(Mono.empty());
+    given(commandExecutor.execute(git, command)).willReturn(Mono.empty());
     service.execute(command).block();
     verify(eventBus).publish(GitStatusUpdateEvent.builder().owner(OWNER).build());
     verify(eventBus).publish(GitRefreshStorageEvent.builder().owner(OWNER).build());

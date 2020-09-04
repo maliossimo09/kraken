@@ -15,9 +15,9 @@ public class GitRmCommandExecutorTest extends GitCommandExecutorTest<GitRmComman
 
   @Test
   @Override
-  protected void shouldExecute() throws Exception{
+  protected void shouldExecute() throws Exception {
     given(git.rm()).willReturn(gitCommand);
-    executor.execute(git, transportConfigCallback, command).block();
+    executor.execute(git, command).block();
     verify(gitCommand).addFilepattern(command.getFilePatterns().get(0));
     verify(gitCommand).setCached(command.getCached().orElseThrow());
     verify(gitCommand).call();

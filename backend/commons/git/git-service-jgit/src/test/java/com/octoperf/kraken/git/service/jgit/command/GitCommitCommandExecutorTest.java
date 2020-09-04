@@ -25,7 +25,7 @@ public class GitCommitCommandExecutorTest extends GitCommandExecutorTest<GitComm
   protected void shouldExecute() throws Exception {
     given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KRAKEN_USER));
     given(git.commit()).willReturn(gitCommand);
-    executor.execute(git, transportConfigCallback, command).block();
+    executor.execute(git, command).block();
     verify(gitCommand).setMessage(command.getMessage());
     verify(gitCommand).setCommitter(KRAKEN_USER.getUsername(), KRAKEN_USER.getEmail());
     verify(gitCommand).setAuthor(KRAKEN_USER.getUsername(), KRAKEN_USER.getEmail());

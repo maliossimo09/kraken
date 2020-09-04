@@ -20,7 +20,7 @@ public class GitFetchCommandExecutorTest extends GitCommandExecutorTest<GitFetch
   @Override
   protected void shouldExecute() throws Exception{
     given(git.fetch()).willReturn(gitCommand);
-    executor.execute(git, transportConfigCallback, command).block();
+    executor.execute(git, command).block();
     verify(gitCommand).setRemote(command.getRemote().orElseThrow());
     verify(gitCommand).setForceUpdate(command.getForceUpdate().orElseThrow());
     verify(gitCommand, never()).setDryRun(anyBoolean());

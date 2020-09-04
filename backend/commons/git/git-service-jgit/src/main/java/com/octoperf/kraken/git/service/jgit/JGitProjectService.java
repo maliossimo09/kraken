@@ -28,24 +28,21 @@ final class JGitProjectService implements GitProjectService {
 
   private static final Path DOT_GIT_PATH = Paths.get(".git");
 
-  @NonNull OwnerToTransportConfig ownerToTransportConfig;
   @NonNull OwnerToPath ownerToPath;
   @NonNull Supplier<CloneCommand> commandSupplier;
   @NonNull Supplier<FileRepositoryBuilder> repositoryBuilderSupplier;
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
-    final var cloneRepo =
-        this.ownerToTransportConfig.apply(owner).flatMap(transportConfigCallback -> Mono.fromCallable(() -> {
-          // Clone into a temporary folder
-          final var tmp = Files.createTempDirectory(owner.getUserId());
-          final var command = commandSupplier.get();;
-          command.setURI(repositoryUrl)
-              .setDirectory(tmp.toFile())
-              .setTransportConfigCallback(transportConfigCallback);
-          command.call();
-          return tmp;
-        }));
+    final var cloneRepo = Mono.fromCallable(() -> {
+      // Clone into a temporary folder
+      final var tmp = Files.createTempDirectory(owner.getUserId());
+      final var command = commandSupplier.get();
+      command.setURI(repositoryUrl)
+          .setDirectory(tmp.toFile());
+      command.call();
+      return tmp;
+    });
 
     return cloneRepo
         .flatMap(tmp -> Mono.fromCallable(() -> {

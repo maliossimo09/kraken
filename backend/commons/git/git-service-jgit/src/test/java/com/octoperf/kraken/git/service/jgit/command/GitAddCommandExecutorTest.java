@@ -18,7 +18,7 @@ public class GitAddCommandExecutorTest extends GitCommandExecutorTest<GitAddComm
   @Override
   protected void shouldExecute() throws Exception{
     given(git.add()).willReturn(gitCommand);
-    executor.execute(git, transportConfigCallback, command).block();
+    executor.execute(git,  command).block();
     verify(gitCommand).addFilepattern(command.getFilePatterns().get(0));
     verify(gitCommand).setUpdate(command.getUpdate().orElseThrow());
     verify(gitCommand).call();

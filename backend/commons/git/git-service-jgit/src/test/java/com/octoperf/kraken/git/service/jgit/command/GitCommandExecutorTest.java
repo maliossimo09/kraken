@@ -2,7 +2,6 @@ package com.octoperf.kraken.git.service.jgit.command;
 
 import com.octoperf.kraken.git.entity.command.GitCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +15,6 @@ public abstract class GitCommandExecutorTest<T extends GitCommand, E extends Git
 
   @Mock
   protected Git git;
-  @Mock
-  protected TransportConfigCallback transportConfigCallback;
 
   protected T command;
   protected E executor;
@@ -42,7 +39,7 @@ public abstract class GitCommandExecutorTest<T extends GitCommand, E extends Git
     return false;
   }
 
-  protected abstract void shouldExecute()  throws Exception;
+  protected abstract void shouldExecute() throws Exception;
 
   protected abstract T newCommand();
 

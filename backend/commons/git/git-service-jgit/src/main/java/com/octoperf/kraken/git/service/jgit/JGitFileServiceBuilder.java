@@ -26,7 +26,6 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class JGitFileServiceBuilder implements GitFileServiceBuilder {
 
-  @NonNull OwnerToTransportConfig ownerToTransportConfig;
   @NonNull OwnerToPath ownerToPath;
   @NonNull EventBus eventBus;
   @NonNull List<GitCommandExecutor> commandExecutors;
@@ -36,7 +35,6 @@ final class JGitFileServiceBuilder implements GitFileServiceBuilder {
   public Mono<GitFileService> build(final Owner owner) {
     final var root = this.ownerToPath.apply(owner);
     final var map = commandExecutors.stream().collect(Collectors.toMap(GitCommandExecutor::getCommandClass, executor -> executor));
-    return Mono.zip(gitFactory.apply(root), ownerToTransportConfig.apply(owner))
-        .map(t2 -> new JGitFileService(owner, t2.getT1(), t2.getT2(), eventBus, map));
+    return gitFactory.apply(root).map(git -> new JGitFileService(owner, git, eventBus, map));
   }
 }

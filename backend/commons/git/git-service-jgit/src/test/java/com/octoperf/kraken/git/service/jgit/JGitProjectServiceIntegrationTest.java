@@ -3,11 +3,14 @@ package com.octoperf.kraken.git.service.jgit;
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
+import com.octoperf.kraken.git.entity.command.GitFetchCommand;
+import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;
 import com.octoperf.kraken.git.service.api.GitUserService;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
+import com.octoperf.kraken.security.entity.token.KrakenTokenUserTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -18,11 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.FileSystemUtils;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -49,6 +54,9 @@ public class JGitProjectServiceIntegrationTest {
 
   @Autowired
   GitProjectService gitProjectService;
+
+  @Autowired
+  GitFileServiceBuilder gitFileServiceBuilder;
 
   @MockBean
   ApplicationProperties properties;
@@ -82,15 +90,22 @@ public class JGitProjectServiceIntegrationTest {
 
   @Test
   void shouldConnectRepo() {
-    StepVerifier.create(gitProjectService.connect(Owner.builder()
-        .userId(USER_ID)
-        .projectId(PROJECT_ID)
-        .applicationId(APP_ID)
-        .type(OwnerType.USER)
-        .build(), REPO_URL))
+    StepVerifier.create(gitProjectService.connect(OWNER, REPO_URL))
         .expectNext(GitConfiguration.builder().repositoryUrl(REPO_URL).build())
         .expectComplete()
         .verify();
+  }
+
+  @Test
+  void shouldFetch() {
+    given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER.toBuilder().userId(USER_ID).build()));
+    gitFileServiceBuilder.build(OWNER)
+        .flatMap(fileService -> fileService.execute(GitFetchCommand.builder()
+            .remote(Optional.empty())
+            .dryRun(Optional.empty())
+            .forceUpdate(Optional.empty())
+            .build()))
+        .block();
   }
 
   @Test

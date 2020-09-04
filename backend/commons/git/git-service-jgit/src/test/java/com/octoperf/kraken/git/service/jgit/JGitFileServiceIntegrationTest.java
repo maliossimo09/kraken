@@ -14,7 +14,6 @@ import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import com.octoperf.kraken.security.entity.token.KrakenTokenUserTest;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,10 +55,6 @@ public class JGitFileServiceIntegrationTest {
   UserProviderFactory userProviderFactory;
   @MockBean
   UserProvider userProvider;
-  @MockBean
-  OwnerToTransportConfig ownerToTransportConfig;
-  @MockBean
-  TransportConfigCallback transportConfigCallback;
 
   JGitFileService gitFileService;
 
@@ -69,7 +64,6 @@ public class JGitFileServiceIntegrationTest {
     given(userProviderFactory.getMode()).willReturn(AuthenticationMode.SESSION);
     given(userProviderFactory.create("")).willReturn(userProvider);
     given(userProvider.getOwner(any(), any())).willReturn(Mono.just(OWNER));
-    given(ownerToTransportConfig.apply(OWNER)).willReturn(Mono.just(transportConfigCallback));
     given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER));
 
     assertThat(REPO_PATH.toFile().mkdirs()).isTrue();

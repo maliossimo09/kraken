@@ -19,7 +19,6 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -44,14 +43,13 @@ final class JGitFileService implements GitFileService, AutoCloseable {
 
   @NonNull Owner owner;
   @NonNull Git git;
-  @NonNull TransportConfigCallback transportConfigCallback;
   @NonNull EventBus eventBus;
   @NonNull Map<String, GitCommandExecutor> commandExecutors;
 
   @Override
   public Mono<Void> execute(final GitCommand command) {
     final var executor = this.commandExecutors.get(command.getClass().getSimpleName());
-    return executor.execute(this.git, this.transportConfigCallback, command)
+    return executor.execute(this.git, command)
         .doOnTerminate(() -> {
           eventBus.publish(GitStatusUpdateEvent.builder().owner(owner).build());
           if (executor.refreshStorage()) {
@@ -147,70 +145,5 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   public void close() {
     git.close();
   }
-
-
-  // TODO Toutes les opérations possible avec tous leurs paramètres
-  //  Créer des objects pour chaque commande puis des CommandExecutors
-//
-//  public Mono<Void> pull() {
-//    return Mono.fromCallable(() -> git.pull()
-//        .setStrategy()
-//        .setRebase()
-//        .setFastForward()
-//        .setRemote()
-//        .setTransportConfigCallback(transportConfigCallback).call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-//
-//  public Mono<Void> push() {
-//    return Mono.fromCallable(() -> git.push()
-//        .setPushOptions()
-//        .setRemote()
-//        .setForce()
-//        .setDryRun()
-//        .setAtomic()
-//        .setTransportConfigCallback(transportConfigCallback).call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-//
-//  public Mono<Void> merge() {
-//    return Mono.fromCallable(() -> git.merge()
-//        .setMessage()
-//        .setSquash()
-//        .setFastForward()
-//        .setCommit()
-//        .setStrategy()
-//        .call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-//
-//  public Mono<Void> rebase(final String operation) {
-//    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-//    return Mono.fromCallable(() -> git.rebase()
-//        .setUpstream()
-//        .setPreserveMerges()
-//        .setStrategy()
-//        .setOperation(RebaseCommand.Operation.valueOf(operation)).call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-
-//  public Mono<Void> reset(final String operation) {
-//    // https://stackoverflow.com/questions/36372274/how-to-get-conflicts-before-merge-with-jgit
-//    return Mono.fromCallable(() -> git.reset()
-//        .setRef()
-//        .setMode()
-//        .addPath()
-//        .
-//        .call())
-//        .doFinally(signalType -> eventBus.publish(new GitStatusUpdateEvent()))
-//        .then();
-//  }
-
-  // TODO Reset to head (file or whole repository)
-  //  git reset --hard HEAD
 
 }

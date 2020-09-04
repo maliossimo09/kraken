@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,7 +24,6 @@ final class GitRmCommandExecutor implements GitCommandExecutor {
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final TransportConfigCallback transportConfigCallback,
                             final GitCommand command) {
     return Mono.fromCallable(() -> {
       final var rmCommand = (GitRmCommand) command;
