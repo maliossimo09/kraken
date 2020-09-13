@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-public class GitRmCommandExecutorTest extends GitCommandExecutorTest<GitRmCommand, GitRmCommandExecutor> {
+public class GitRmCommandExecutorTest extends GitSubCommandExecutorTest<GitRmSubCommand, GitRmCommandExecutor> {
 
   @Mock
   RmCommand gitCommand;
@@ -24,7 +24,7 @@ public class GitRmCommandExecutorTest extends GitCommandExecutorTest<GitRmComman
   }
 
   @Override
-  protected GitRmCommand newCommand() {
+  protected GitRmSubCommand newCommand() {
     return GitRmCommandTest.COMMAND;
   }
 

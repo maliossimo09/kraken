@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitAddCommand;
-import com.octoperf.kraken.git.entity.command.GitAddCommandTest;
+import com.octoperf.kraken.git.entity.command.GitAddSubCommand;
+import com.octoperf.kraken.git.entity.command.GitAddSubCommandTest;
 import org.eclipse.jgit.api.AddCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
-public class GitAddCommandExecutorTest extends GitCommandExecutorTest<GitAddCommand, GitAddCommandExecutor> {
+public class GitAddCommandExecutorTest extends GitSubCommandExecutorTest<GitAddSubCommand, GitAddCommandExecutor> {
 
   @Mock
   AddCommand gitCommand;
@@ -25,8 +25,8 @@ public class GitAddCommandExecutorTest extends GitCommandExecutorTest<GitAddComm
   }
 
   @Override
-  protected GitAddCommand newCommand() {
-    return GitAddCommandTest.COMMAND;
+  protected GitAddSubCommand newCommand() {
+    return GitAddSubCommandTest.COMMAND;
   }
 
   @Override

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class GitCommitCommandTest {
 
-  public static final GitCommitCommand COMMAND = GitCommitCommand.builder()
+  public static final GitCommitSubCommand COMMAND = GitCommitSubCommand.builder()
       .message("message")
       .all(Optional.of(true))
       .allowEmpty(Optional.empty())

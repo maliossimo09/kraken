@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
 import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public abstract class GitCommandExecutorTest<T extends GitCommand, E extends GitCommandExecutor> {
+public abstract class GitSubCommandExecutorTest<T extends GitSubCommand, E extends GitCommandExecutor> {
 
   @Mock
   protected Git git;

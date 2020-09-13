@@ -3,7 +3,7 @@ package com.octoperf.kraken.git.service.jgit;
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
-import com.octoperf.kraken.git.entity.command.GitFetchCommand;
+import com.octoperf.kraken.git.entity.command.GitFetchSubCommand;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;
 import com.octoperf.kraken.git.service.api.GitUserService;
@@ -100,7 +100,7 @@ public class JGitProjectServiceIntegrationTest {
   void shouldFetch() {
     given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER.toBuilder().userId(USER_ID).build()));
     gitFileServiceBuilder.build(OWNER)
-        .flatMap(fileService -> fileService.execute(GitFetchCommand.builder()
+        .flatMap(fileService -> fileService.execute(GitFetchSubCommand.builder()
             .remote(Optional.empty())
             .dryRun(Optional.empty())
             .forceUpdate(Optional.empty())

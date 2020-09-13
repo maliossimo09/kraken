@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class GitResetCommandTest {
 
-  public static final GitResetCommand COMMAND = GitResetCommand.builder()
+  public static final GitResetSubCommand COMMAND = GitResetSubCommand.builder()
       .ref(Optional.empty())
       .resetType(Optional.of(ResetType.HARD))
       .disableRefLog(Optional.empty())

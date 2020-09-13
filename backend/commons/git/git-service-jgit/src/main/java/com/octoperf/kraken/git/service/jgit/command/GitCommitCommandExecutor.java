@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
-import com.octoperf.kraken.git.entity.command.GitCommitCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.entity.command.GitCommitSubCommand;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -23,14 +23,14 @@ final class GitCommitCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitCommitCommand.class.getSimpleName();
+    return GitCommitSubCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final GitCommand command) {
+                            final GitSubCommand command) {
     return userProvider.getAuthenticatedUser().flatMap(user -> Mono.fromCallable(() -> {
-      final var commitCommand = (GitCommitCommand) command;
+      final var commitCommand = (GitCommitSubCommand) command;
       final var commit = git.commit();
       commit.setMessage(commitCommand.getMessage());
       commit.setCommitter(user.getUsername(), user.getEmail());

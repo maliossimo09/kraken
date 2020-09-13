@@ -5,8 +5,8 @@ import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
-import com.octoperf.kraken.git.entity.command.GitAddCommand;
-import com.octoperf.kraken.git.entity.command.GitCommitCommand;
+import com.octoperf.kraken.git.entity.command.GitAddSubCommand;
+import com.octoperf.kraken.git.entity.command.GitCommitSubCommand;
 import com.octoperf.kraken.security.authentication.api.AuthenticationMode;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.authentication.api.UserProviderFactory;
@@ -96,14 +96,14 @@ public class JGitFileServiceIntegrationTest {
     assertThat(getStatus().getDiff().get(fileName)).isEqualTo(ImmutableList.of(GitFileStatus.UNTRACKED));
 
     System.out.println("Add it to git");
-    gitFileService.execute(GitAddCommand.builder()
+    gitFileService.execute(GitAddSubCommand.builder()
         .filePatterns(ImmutableList.of(fileName))
         .update(Optional.empty())
         .build()).block();
     assertThat(getStatus().getDiff().get(fileName)).isEqualTo(ImmutableList.of(GitFileStatus.ADDED));
 
     System.out.println("Commit");
-    gitFileService.execute(GitCommitCommand.builder()
+    gitFileService.execute(GitCommitSubCommand.builder()
         .message("Commit")
         .all(Optional.of(true))
         .allowEmpty(Optional.empty())

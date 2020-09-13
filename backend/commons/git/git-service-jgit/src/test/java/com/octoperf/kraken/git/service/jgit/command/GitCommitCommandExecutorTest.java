@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommitCommand;
+import com.octoperf.kraken.git.entity.command.GitCommitSubCommand;
 import com.octoperf.kraken.git.entity.command.GitCommitCommandTest;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import org.eclipse.jgit.api.CommitCommand;
@@ -12,7 +12,7 @@ import static com.octoperf.kraken.security.entity.token.KrakenTokenUserTest.KRAK
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-public class GitCommitCommandExecutorTest extends GitCommandExecutorTest<GitCommitCommand, GitCommitCommandExecutor> {
+public class GitCommitCommandExecutorTest extends GitSubCommandExecutorTest<GitCommitSubCommand, GitCommitCommandExecutor> {
 
   @Mock
   CommitCommand gitCommand;
@@ -38,7 +38,7 @@ public class GitCommitCommandExecutorTest extends GitCommandExecutorTest<GitComm
   }
 
   @Override
-  protected GitCommitCommand newCommand() {
+  protected GitCommitSubCommand newCommand() {
     return GitCommitCommandTest.COMMAND;
   }
 

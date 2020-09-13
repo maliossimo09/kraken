@@ -23,12 +23,12 @@ public class GitPullCommandJacksonTest {
   public void shouldDeSerialize() throws IOException {
     final var object = GitPullCommandTest.COMMAND;
     final String json = mapper.writeValueAsString(object);
-    Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
+    Assertions.assertThat(mapper.readValue(json, GitSubCommand.class)).isEqualTo(object);
   }
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"pull\"}", GitCommand.class)).isEqualTo(GitPullCommand.builder()
+    Assertions.assertThat(mapper.readValue("{\"type\": \"pull\"}", GitSubCommand.class)).isEqualTo(GitPullSubCommand.builder()
         .strategy(Optional.empty())
         .rebase(Optional.empty())
         .fastForward(Optional.empty())

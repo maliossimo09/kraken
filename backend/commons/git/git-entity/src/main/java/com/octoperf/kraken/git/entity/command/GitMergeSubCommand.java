@@ -9,7 +9,7 @@ import lombok.Value;
 import java.util.Optional;
 
 @Value
-public class GitMergeCommand implements GitCommand {
+public class GitMergeSubCommand implements GitSubCommand {
 
   Optional<String> message;
   Optional<Boolean> squash;
@@ -18,11 +18,11 @@ public class GitMergeCommand implements GitCommand {
   Optional<MergeStrategy> strategy;
 
   @JsonCreator
-  public GitMergeCommand(@JsonProperty("message") final String message,
-                         @JsonProperty("squash") final Boolean squash,
-                         @JsonProperty("fastForward") final FastForwardMode fastForward,
-                         @JsonProperty("commit") final Boolean commit,
-                         @JsonProperty("strategy") final MergeStrategy strategy) {
+  public GitMergeSubCommand(@JsonProperty("message") final String message,
+                            @JsonProperty("squash") final Boolean squash,
+                            @JsonProperty("fastForward") final FastForwardMode fastForward,
+                            @JsonProperty("commit") final Boolean commit,
+                            @JsonProperty("strategy") final MergeStrategy strategy) {
     this.message = Optional.ofNullable(message);
     this.squash = Optional.ofNullable(squash);
     this.fastForward = Optional.ofNullable(fastForward);
@@ -31,11 +31,11 @@ public class GitMergeCommand implements GitCommand {
   }
 
   @Builder(toBuilder = true)
-  private GitMergeCommand(@NonNull final Optional<String> message,
-                          @NonNull final Optional<Boolean> squash,
-                          @NonNull final Optional<FastForwardMode> fastForward,
-                          @NonNull final Optional<Boolean> commit,
-                          @NonNull final Optional<MergeStrategy> strategy) {
+  private GitMergeSubCommand(@NonNull final Optional<String> message,
+                             @NonNull final Optional<Boolean> squash,
+                             @NonNull final Optional<FastForwardMode> fastForward,
+                             @NonNull final Optional<Boolean> commit,
+                             @NonNull final Optional<MergeStrategy> strategy) {
     this.message = message;
     this.squash = squash;
     this.fastForward = fastForward;

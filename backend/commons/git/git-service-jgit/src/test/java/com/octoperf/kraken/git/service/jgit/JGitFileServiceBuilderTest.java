@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit;
 
 import com.google.common.collect.ImmutableList;
-import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
 import com.octoperf.kraken.git.service.jgit.command.GitCommandExecutor;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import com.octoperf.kraken.tools.event.bus.EventBus;
@@ -41,7 +41,7 @@ class JGitFileServiceBuilderTest {
         ImmutableList.of(commandExecutor),
         gitFactory);
     final var root = Paths.get("testDir");
-    given(commandExecutor.getCommandClass()).willReturn(GitCommand.class.getSimpleName());
+    given(commandExecutor.getCommandClass()).willReturn(GitSubCommand.class.getSimpleName());
     given(ownerToPath.apply(owner)).willReturn(root);
     given(gitFactory.apply(root)).willReturn(Mono.just(git));
     Assertions.assertThat(builder.build(owner)).isNotNull();

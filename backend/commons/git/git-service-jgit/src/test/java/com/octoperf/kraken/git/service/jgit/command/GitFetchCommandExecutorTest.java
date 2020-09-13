@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitFetchCommand;
+import com.octoperf.kraken.git.entity.command.GitFetchSubCommand;
 import com.octoperf.kraken.git.entity.command.GitFetchCommandTest;
 import org.eclipse.jgit.api.FetchCommand;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class GitFetchCommandExecutorTest extends GitCommandExecutorTest<GitFetchCommand, GitFetchCommandExecutor> {
+public class GitFetchCommandExecutorTest extends GitSubCommandExecutorTest<GitFetchSubCommand, GitFetchCommandExecutor> {
 
   @Mock
   FetchCommand gitCommand;
@@ -28,7 +28,7 @@ public class GitFetchCommandExecutorTest extends GitCommandExecutorTest<GitFetch
   }
 
   @Override
-  protected GitFetchCommand newCommand() {
+  protected GitFetchSubCommand newCommand() {
     return GitFetchCommandTest.COMMAND;
   }
 

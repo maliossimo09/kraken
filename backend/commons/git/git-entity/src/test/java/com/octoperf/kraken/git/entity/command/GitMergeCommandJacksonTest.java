@@ -23,12 +23,12 @@ public class GitMergeCommandJacksonTest {
   public void shouldDeSerialize() throws IOException {
     final var object = GitMergeCommandTest.COMMAND;
     final String json = mapper.writeValueAsString(object);
-    Assertions.assertThat(mapper.readValue(json, GitCommand.class)).isEqualTo(object);
+    Assertions.assertThat(mapper.readValue(json, GitSubCommand.class)).isEqualTo(object);
   }
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"merge\"}", GitCommand.class)).isEqualTo(GitMergeCommand.builder()
+    Assertions.assertThat(mapper.readValue("{\"type\": \"merge\"}", GitSubCommand.class)).isEqualTo(GitMergeSubCommand.builder()
         .message(Optional.empty())
         .squash(Optional.empty())
         .fastForward(Optional.empty())

@@ -9,7 +9,7 @@ import lombok.Value;
 import java.util.Optional;
 
 @Value
-public class GitRebaseCommand implements GitCommand {
+public class GitRebaseSubCommand implements GitSubCommand {
 
   Optional<String> upstream;
   Optional<Boolean> preserveMerge;
@@ -17,10 +17,10 @@ public class GitRebaseCommand implements GitCommand {
   Optional<RebaseOperation> operation;
 
   @JsonCreator
-  public GitRebaseCommand(@JsonProperty("upstream") final String upstream,
-                          @JsonProperty("preserveMerge") final Boolean preserveMerge,
-                          @JsonProperty("strategy") final MergeStrategy strategy,
-                          @JsonProperty("operation") final RebaseOperation operation) {
+  public GitRebaseSubCommand(@JsonProperty("upstream") final String upstream,
+                             @JsonProperty("preserveMerge") final Boolean preserveMerge,
+                             @JsonProperty("strategy") final MergeStrategy strategy,
+                             @JsonProperty("operation") final RebaseOperation operation) {
     this.upstream = Optional.ofNullable(upstream);
     this.preserveMerge = Optional.ofNullable(preserveMerge);
     this.strategy = Optional.ofNullable(strategy);
@@ -28,10 +28,10 @@ public class GitRebaseCommand implements GitCommand {
   }
 
   @Builder(toBuilder = true)
-  private GitRebaseCommand(@NonNull final Optional<String> upstream,
-                           @NonNull final Optional<Boolean> preserveMerge,
-                           @NonNull final Optional<MergeStrategy> strategy,
-                           @NonNull final Optional<RebaseOperation> operation) {
+  private GitRebaseSubCommand(@NonNull final Optional<String> upstream,
+                              @NonNull final Optional<Boolean> preserveMerge,
+                              @NonNull final Optional<MergeStrategy> strategy,
+                              @NonNull final Optional<RebaseOperation> operation) {
     this.upstream = upstream;
     this.preserveMerge = preserveMerge;
     this.strategy = strategy;

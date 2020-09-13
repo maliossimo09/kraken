@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class GitMergeCommandTest {
 
-  public static final GitMergeCommand COMMAND = GitMergeCommand.builder()
+  public static final GitMergeSubCommand COMMAND = GitMergeSubCommand.builder()
       .message(Optional.of("message"))
       .squash(Optional.of(false))
       .fastForward(Optional.of(FastForwardMode.NO_FF))

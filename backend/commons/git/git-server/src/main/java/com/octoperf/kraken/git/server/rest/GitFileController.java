@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.server.rest;
 
 import com.octoperf.kraken.git.entity.GitLog;
-import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
 import com.octoperf.kraken.git.service.api.GitFileService;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
@@ -36,8 +36,11 @@ public class GitFileController {
   @PostMapping("/execute")
   public Mono<Void> connect(@RequestHeader("ApplicationId") @Pattern(regexp = "[a-z0-9]*") final String applicationId,
                             @RequestHeader(name = "ProjectId") final String projectId,
-                            @RequestBody() final GitCommand command) {
-    return this.gitFileService(applicationId, projectId).flatMap(gitFileService -> gitFileService.execute(command));
+                            @RequestBody() final GitSubCommand command) {
+    return this.gitFileService(applicationId, projectId).flatMap(gitFileService -> gitFileService.execute(command).then(Mono.fromCallable(() -> {
+      gitFileService.close();
+      return null;
+    })));
   }
 
   @GetMapping("/log")

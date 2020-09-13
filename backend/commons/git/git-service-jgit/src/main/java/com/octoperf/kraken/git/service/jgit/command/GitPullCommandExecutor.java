@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
-import com.octoperf.kraken.git.entity.command.GitPullCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.entity.command.GitPullSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +21,14 @@ final class GitPullCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitPullCommand.class.getSimpleName();
+    return GitPullSubCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final GitCommand command) {
+                            final GitSubCommand command) {
     return Mono.fromCallable(() -> {
-      final var pullCommand = (GitPullCommand) command;
+      final var pullCommand = (GitPullSubCommand) command;
       final var pull = git.pull();
       //      TODO Functions to handle this
       pullCommand.getFastForward()

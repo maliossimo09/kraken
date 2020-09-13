@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value
-public class GitResetCommand implements GitCommand {
+public class GitResetSubCommand implements GitSubCommand {
 
   Optional<String> ref;
   Optional<ResetType> resetType;
@@ -19,10 +19,10 @@ public class GitResetCommand implements GitCommand {
   Optional<Boolean> disableRefLog;
 
   @JsonCreator
-  public GitResetCommand(@JsonProperty("ref") final String ref,
-                         @JsonProperty("resetType") final ResetType resetType,
-                         @JsonProperty("path") final List<String> path,
-                         @JsonProperty("disableRefLog") final Boolean disableRefLog) {
+  public GitResetSubCommand(@JsonProperty("ref") final String ref,
+                            @JsonProperty("resetType") final ResetType resetType,
+                            @JsonProperty("path") final List<String> path,
+                            @JsonProperty("disableRefLog") final Boolean disableRefLog) {
     this.ref = Optional.ofNullable(ref);
     this.resetType = Optional.ofNullable(resetType);
     this.path = Optional.ofNullable(path).orElse(ImmutableList.of());
@@ -30,10 +30,10 @@ public class GitResetCommand implements GitCommand {
   }
 
   @Builder(toBuilder = true)
-  private GitResetCommand(@NonNull final Optional<String> ref,
-                          @NonNull final Optional<ResetType> resetType,
-                          @NonNull final List<String> path,
-                          @NonNull final Optional<Boolean> disableRefLog) {
+  private GitResetSubCommand(@NonNull final Optional<String> ref,
+                             @NonNull final Optional<ResetType> resetType,
+                             @NonNull final List<String> path,
+                             @NonNull final Optional<Boolean> disableRefLog) {
     this.ref = ref;
     this.resetType = resetType;
     this.path = path;

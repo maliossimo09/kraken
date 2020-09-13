@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
-import com.octoperf.kraken.git.entity.command.GitRmCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.entity.command.GitRmSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,14 @@ final class GitRmCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitRmCommand.class.getSimpleName();
+    return GitRmSubCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final GitCommand command) {
+                            final GitSubCommand command) {
     return Mono.fromCallable(() -> {
-      final var rmCommand = (GitRmCommand) command;
+      final var rmCommand = (GitRmSubCommand) command;
       final var rm = git.rm();
       rmCommand.getFilePatterns().forEach(rm::addFilepattern);
       rmCommand.getCached().ifPresent(rm::setCached);

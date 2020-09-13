@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class GitRebaseCommandTest {
 
-  public static final GitRebaseCommand COMMAND = GitRebaseCommand.builder()
+  public static final GitRebaseSubCommand COMMAND = GitRebaseSubCommand.builder()
       .upstream(Optional.empty())
       .preserveMerge(Optional.of(true))
       .strategy(Optional.empty())

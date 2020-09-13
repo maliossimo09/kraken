@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommand;
-import com.octoperf.kraken.git.entity.command.GitFetchCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.entity.command.GitFetchSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,14 @@ final class GitFetchCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitFetchCommand.class.getSimpleName();
+    return GitFetchSubCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final GitCommand command) {
+                            final GitSubCommand command) {
     return Mono.fromCallable(() -> {
-      final var fetchCommand = (GitFetchCommand) command;
+      final var fetchCommand = (GitFetchSubCommand) command;
       final var fetch = git.fetch();
       fetchCommand.getForceUpdate().ifPresent(fetch::setForceUpdate);
       fetchCommand.getRemote().ifPresent(fetch::setRemote);

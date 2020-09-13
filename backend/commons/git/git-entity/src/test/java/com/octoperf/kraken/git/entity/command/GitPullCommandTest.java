@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class GitPullCommandTest {
 
-  public static final GitPullCommand COMMAND = GitPullCommand.builder()
+  public static final GitPullSubCommand COMMAND = GitPullSubCommand.builder()
       .strategy(Optional.of(MergeStrategy.RESOLVE))
       .rebase(Optional.of(RebaseMode.PRESERVE))
       .fastForward(Optional.empty())

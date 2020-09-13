@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class GitFetchCommandTest {
 
-  public static final GitFetchCommand COMMAND = GitFetchCommand.builder()
+  public static final GitFetchSubCommand COMMAND = GitFetchSubCommand.builder()
       .remote(Optional.of("master"))
       .forceUpdate(Optional.of(false))
       .dryRun(Optional.empty())

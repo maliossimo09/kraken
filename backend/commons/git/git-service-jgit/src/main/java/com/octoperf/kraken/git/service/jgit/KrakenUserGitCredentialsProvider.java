@@ -25,7 +25,6 @@ final class KrakenUserGitCredentialsProvider extends JschConfigSessionFactory {
   @NonNull GitUserService userService;
 
   // TODO Unit tests
-  // TODO We should be able to remove the transport config!
 
   @PostConstruct
   public void post(){

@@ -7,7 +7,7 @@ import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitIdentity;
 import com.octoperf.kraken.git.entity.GitLog;
 import com.octoperf.kraken.git.entity.GitStatus;
-import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
 import com.octoperf.kraken.git.event.GitRefreshStorageEvent;
 import com.octoperf.kraken.git.event.GitStatusUpdateEvent;
 import com.octoperf.kraken.git.service.api.GitFileService;
@@ -47,7 +47,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull Map<String, GitCommandExecutor> commandExecutors;
 
   @Override
-  public Mono<Void> execute(final GitCommand command) {
+  public Mono<Void> execute(final GitSubCommand command) {
     final var executor = this.commandExecutors.get(command.getClass().getSimpleName());
     return executor.execute(this.git, command)
         .doOnTerminate(() -> {
@@ -141,6 +141,8 @@ final class JGitFileService implements GitFileService, AutoCloseable {
         .flatMap(window -> window.reduce((event1, event2) -> event2));
   }
 
+
+  // TODO Close when necessary !20
   @Override
   public void close() {
     git.close();

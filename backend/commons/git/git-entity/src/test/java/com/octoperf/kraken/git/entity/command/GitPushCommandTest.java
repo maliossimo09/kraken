@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class GitPushCommandTest {
 
-  public static final GitPushCommand COMMAND = GitPushCommand.builder()
+  public static final GitPushSubCommand COMMAND = GitPushSubCommand.builder()
       .remote(Optional.of("HEAD"))
       .force(Optional.of(true))
       .dryRun(Optional.empty())

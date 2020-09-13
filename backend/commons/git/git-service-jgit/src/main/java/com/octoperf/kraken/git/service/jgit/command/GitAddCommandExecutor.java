@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitAddCommand;
-import com.octoperf.kraken.git.entity.command.GitCommand;
+import com.octoperf.kraken.git.entity.command.GitAddSubCommand;
+import com.octoperf.kraken.git.entity.command.GitSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +19,14 @@ final class GitAddCommandExecutor implements GitCommandExecutor {
 
   @Override
   public String getCommandClass() {
-    return GitAddCommand.class.getSimpleName();
+    return GitAddSubCommand.class.getSimpleName();
   }
 
   @Override
   public Mono<Void> execute(final Git git,
-                            final GitCommand command) {
+                            final GitSubCommand command) {
     return Mono.fromCallable(() -> {
-      final var addCommand = (GitAddCommand) command;
+      final var addCommand = (GitAddSubCommand) command;
       final var add = git.add();
       addCommand.getFilePatterns().forEach(add::addFilepattern);
       addCommand.getUpdate().ifPresent(add::setUpdate);

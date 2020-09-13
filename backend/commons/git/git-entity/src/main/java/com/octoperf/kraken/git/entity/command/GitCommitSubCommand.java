@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Value
 @Builder(toBuilder = true)
-public class GitCommitCommand implements GitCommand {
+public class GitCommitSubCommand implements GitSubCommand {
   String message;
   Optional<Boolean> all;
   List<String> only;
@@ -21,12 +21,12 @@ public class GitCommitCommand implements GitCommand {
   Optional<Boolean> noVerify;
 
   @JsonCreator
-  public GitCommitCommand(@JsonProperty("message") final String message,
-                          @JsonProperty("all") final Boolean all,
-                          @JsonProperty("only") final List<String> only,
-                          @JsonProperty("amend") final Boolean amend,
-                          @JsonProperty("allowEmpty") final Boolean allowEmpty,
-                          @JsonProperty("noVerify") final Boolean noVerify) {
+  public GitCommitSubCommand(@JsonProperty("message") final String message,
+                             @JsonProperty("all") final Boolean all,
+                             @JsonProperty("only") final List<String> only,
+                             @JsonProperty("amend") final Boolean amend,
+                             @JsonProperty("allowEmpty") final Boolean allowEmpty,
+                             @JsonProperty("noVerify") final Boolean noVerify) {
     this.message = message;
     this.all = Optional.ofNullable(all);
     this.only = Optional.ofNullable(only).orElse(ImmutableList.of());
@@ -36,12 +36,12 @@ public class GitCommitCommand implements GitCommand {
   }
 
   @Builder(toBuilder = true)
-  private GitCommitCommand(@NonNull final String message,
-                           @NonNull final Optional<Boolean> all,
-                           @NonNull final List<String> only,
-                           @NonNull final Optional<Boolean> amend,
-                           @NonNull final Optional<Boolean> allowEmpty,
-                           @NonNull final Optional<Boolean> noVerify) {
+  private GitCommitSubCommand(@NonNull final String message,
+                              @NonNull final Optional<Boolean> all,
+                              @NonNull final List<String> only,
+                              @NonNull final Optional<Boolean> amend,
+                              @NonNull final Optional<Boolean> allowEmpty,
+                              @NonNull final Optional<Boolean> noVerify) {
     this.message = message;
     this.all = all;
     this.only = only;

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class GitRmCommandTest {
 
-  public static final GitRmCommand COMMAND = GitRmCommand.builder()
+  public static final GitRmSubCommand COMMAND = GitRmSubCommand.builder()
       .filePatterns(ImmutableList.of("pattern"))
       .cached(Optional.of(true))
       .build();
