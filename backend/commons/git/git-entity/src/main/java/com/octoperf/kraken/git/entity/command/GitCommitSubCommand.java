@@ -3,50 +3,50 @@ package com.octoperf.kraken.git.entity.command;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.NonNull;
 import lombok.Value;
+import lombok.experimental.FieldDefaults;
+import picocli.CommandLine;
 
 import java.util.List;
 import java.util.Optional;
 
 @Value
-@Builder(toBuilder = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
+@CommandLine.Command(name = "commit", description = "Record changes to the repository")
 public class GitCommitSubCommand implements GitSubCommand {
+
+  @CommandLine.Option(names = {"-m", "--message"}, description = "Use the given <msg> as the commit message", required = true)
   String message;
-  Optional<Boolean> all;
-  List<String> only;
-  Optional<Boolean> amend;
-  Optional<Boolean> allowEmpty;
-  Optional<Boolean> noVerify;
+
+  @CommandLine.Option(names = {"-a", "--all"}, description = "Commit all modified and deleted files")
+  final Boolean all;
+
+  @CommandLine.Option(names = {"-o", "--only"}, description = "Commit specified paths only")
+  final Boolean only;
+
+  @CommandLine.Option(names = {"--amend"}, description = "Amend the tip of the current branch")
+  final Boolean amend;
+
+  @CommandLine.Parameters(paramLabel = "paths", description = "See --only")
+  final List<String> paths;
 
   @JsonCreator
+  @Builder(toBuilder = true)
   public GitCommitSubCommand(@JsonProperty("message") final String message,
                              @JsonProperty("all") final Boolean all,
-                             @JsonProperty("only") final List<String> only,
+                             @JsonProperty("only") final Boolean only,
                              @JsonProperty("amend") final Boolean amend,
-                             @JsonProperty("allowEmpty") final Boolean allowEmpty,
-                             @JsonProperty("noVerify") final Boolean noVerify) {
-    this.message = message;
-    this.all = Optional.ofNullable(all);
-    this.only = Optional.ofNullable(only).orElse(ImmutableList.of());
-    this.amend = Optional.ofNullable(amend);
-    this.allowEmpty = Optional.ofNullable(allowEmpty);
-    this.noVerify = Optional.ofNullable(noVerify);
-  }
-
-  @Builder(toBuilder = true)
-  private GitCommitSubCommand(@NonNull final String message,
-                              @NonNull final Optional<Boolean> all,
-                              @NonNull final List<String> only,
-                              @NonNull final Optional<Boolean> amend,
-                              @NonNull final Optional<Boolean> allowEmpty,
-                              @NonNull final Optional<Boolean> noVerify) {
+                             @JsonProperty("paths") final List<String> paths) {
     this.message = message;
     this.all = all;
     this.only = only;
     this.amend = amend;
-    this.allowEmpty = allowEmpty;
-    this.noVerify = noVerify;
+    this.paths = Optional.ofNullable(paths).orElse(ImmutableList.of());
+  }
+
+  private GitCommitSubCommand() {
+    this(null, null, null, null, null);
   }
 }

@@ -9,6 +9,8 @@ import org.eclipse.jgit.api.Git;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 import static lombok.AccessLevel.PRIVATE;
 
 @Slf4j
@@ -29,7 +31,7 @@ final class GitAddCommandExecutor implements GitCommandExecutor {
       final var addCommand = (GitAddSubCommand) command;
       final var add = git.add();
       addCommand.getFilePatterns().forEach(add::addFilepattern);
-      addCommand.getUpdate().ifPresent(add::setUpdate);
+      Optional.ofNullable(addCommand.getUpdate()).ifPresent(add::setUpdate);
       add.call();
       return null;
     });
