@@ -27,7 +27,6 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -101,9 +100,9 @@ public class JGitProjectServiceIntegrationTest {
     given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER.toBuilder().userId(USER_ID).build()));
     gitFileServiceBuilder.build(OWNER)
         .flatMap(fileService -> fileService.execute(GitFetchSubCommand.builder()
-            .remote(Optional.empty())
-            .dryRun(Optional.empty())
-            .forceUpdate(Optional.empty())
+//            .remote(Optional.empty())
+//            .dryRun(Optional.empty())
+//            .forceUpdate(Optional.empty())
             .build()))
         .block();
   }

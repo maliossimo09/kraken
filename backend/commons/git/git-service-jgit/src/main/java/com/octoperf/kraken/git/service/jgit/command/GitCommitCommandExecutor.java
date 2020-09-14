@@ -35,11 +35,11 @@ final class GitCommitCommandExecutor implements GitCommandExecutor {
       commit.setMessage(commitCommand.getMessage());
       commit.setCommitter(user.getUsername(), user.getEmail());
       commit.setAuthor(user.getUsername(), user.getEmail());
-      commitCommand.getAll().ifPresent(commit::setAll);
-      commitCommand.getOnly().forEach(commit::setOnly);
-      commitCommand.getAmend().ifPresent(commit::setAmend);
-      commitCommand.getAllowEmpty().ifPresent(commit::setAllowEmpty);
-      commitCommand.getNoVerify().ifPresent(commit::setNoVerify);
+//      commitCommand.getAll().ifPresent(commit::setAll);
+//      commitCommand.getOnly().forEach(commit::setOnly);
+//      commitCommand.getAmend().ifPresent(commit::setAmend);
+//      commitCommand.getAllowEmpty().ifPresent(commit::setAllowEmpty);
+//      commitCommand.getNoVerify().ifPresent(commit::setNoVerify);
       commit.call();
       return null;
     }));

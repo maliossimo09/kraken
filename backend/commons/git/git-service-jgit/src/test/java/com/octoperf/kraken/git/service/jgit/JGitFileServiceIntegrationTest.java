@@ -28,7 +28,6 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -98,18 +97,18 @@ public class JGitFileServiceIntegrationTest {
     System.out.println("Add it to git");
     gitFileService.execute(GitAddSubCommand.builder()
         .filePatterns(ImmutableList.of(fileName))
-        .update(Optional.empty())
+//        .update(Optional.empty())
         .build()).block();
     assertThat(getStatus().getDiff().get(fileName)).isEqualTo(ImmutableList.of(GitFileStatus.ADDED));
 
     System.out.println("Commit");
     gitFileService.execute(GitCommitSubCommand.builder()
         .message("Commit")
-        .all(Optional.of(true))
-        .allowEmpty(Optional.empty())
-        .amend(Optional.empty())
-        .noVerify(Optional.empty())
-        .only(ImmutableList.of())
+//        .all(Optional.of(true))
+//        .allowEmpty(Optional.empty())
+//        .amend(Optional.empty())
+//        .noVerify(Optional.empty())
+//        .only(ImmutableList.of())
         .build()).block();
     assertThat(getStatus().isUncommittedChanges()).isFalse();
 

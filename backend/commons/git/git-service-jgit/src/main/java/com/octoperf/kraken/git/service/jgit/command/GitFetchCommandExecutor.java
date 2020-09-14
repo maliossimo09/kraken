@@ -28,9 +28,9 @@ final class GitFetchCommandExecutor implements GitCommandExecutor {
     return Mono.fromCallable(() -> {
       final var fetchCommand = (GitFetchSubCommand) command;
       final var fetch = git.fetch();
-      fetchCommand.getForceUpdate().ifPresent(fetch::setForceUpdate);
-      fetchCommand.getRemote().ifPresent(fetch::setRemote);
-      fetchCommand.getDryRun().ifPresent(fetch::setDryRun);
+//      fetchCommand.getForceUpdate().ifPresent(fetch::setForceUpdate);
+//      fetchCommand.getRemote().ifPresent(fetch::setRemote);
+//      fetchCommand.getDryRun().ifPresent(fetch::setDryRun);
       fetch.call();
       return null;
     });

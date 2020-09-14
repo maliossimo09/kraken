@@ -20,7 +20,7 @@ public class GitAddCommandExecutorTest extends GitSubCommandExecutorTest<GitAddS
     given(git.add()).willReturn(gitCommand);
     executor.execute(git,  command).block();
     verify(gitCommand).addFilepattern(command.getFilePatterns().get(0));
-    verify(gitCommand).setUpdate(command.getUpdate().orElseThrow());
+//    verify(gitCommand).setUpdate(command.getUpdate().orElseThrow());
     verify(gitCommand).call();
   }
 
