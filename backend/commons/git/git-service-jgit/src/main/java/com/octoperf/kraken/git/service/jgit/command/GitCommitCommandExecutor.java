@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
-import com.octoperf.kraken.git.entity.command.GitCommitSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitCommitSubCommand;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

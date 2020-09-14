@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.*;
+import com.octoperf.kraken.git.command.*;
 import org.eclipse.jgit.api.RmCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

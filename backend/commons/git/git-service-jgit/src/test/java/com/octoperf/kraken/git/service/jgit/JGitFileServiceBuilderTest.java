@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit;
 
 import com.google.common.collect.ImmutableList;
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import com.octoperf.kraken.git.service.jgit.command.GitCommandExecutor;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import com.octoperf.kraken.tools.event.bus.EventBus;

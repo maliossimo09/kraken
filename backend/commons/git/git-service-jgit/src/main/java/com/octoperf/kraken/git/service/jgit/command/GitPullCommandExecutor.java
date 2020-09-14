@@ -1,13 +1,11 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
-import com.octoperf.kraken.git.entity.command.GitPullSubCommand;
+import com.octoperf.kraken.git.command.GitPullSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.MergeCommand;
-import org.eclipse.jgit.lib.BranchConfig;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -30,16 +28,19 @@ final class GitPullCommandExecutor implements GitCommandExecutor {
     return Mono.fromCallable(() -> {
       final var pullCommand = (GitPullSubCommand) command;
       final var pull = git.pull();
+      git.rm().setCached()
       //      TODO Functions to handle this
-      pullCommand.getFastForward()
-          .map(Enum::name)
-          .map(MergeCommand.FastForwardMode::valueOf)
-          .ifPresent(pull::setFastForward);
-      pullCommand.getRebase()
-          .map(Enum::name)
-          .map(BranchConfig.BranchRebaseMode::valueOf)
-          .ifPresent(pull::setRebase);
-      pullCommand.getRemote().ifPresent(pull::setRemote);
+//      pull.setTagOpt()
+//      pull.setRebase()
+//      pullCommand.getFastForward()
+//          .map(Enum::name)
+//          .map(MergeCommand.FastForwardMode::valueOf)
+//          .ifPresent(pull::setFastForward);
+//      pullCommand.getRebase()
+//          .map(Enum::name)
+//          .map(BranchConfig.BranchRebaseMode::valueOf)
+//          .ifPresent(pull::setRebase);
+//      pullCommand.getRemote().ifPresent(pull::setRemote);
 //      TODO handle this
 //      pullCommand.getStrategy()
 //          .map(Enum::name)

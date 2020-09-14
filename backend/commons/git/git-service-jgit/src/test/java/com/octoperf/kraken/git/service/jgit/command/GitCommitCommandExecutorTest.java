@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitCommitSubCommand;
+import com.octoperf.kraken.git.command.GitCommitSubCommand;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import org.eclipse.jgit.api.CommitCommand;
 import org.junit.jupiter.api.Test;

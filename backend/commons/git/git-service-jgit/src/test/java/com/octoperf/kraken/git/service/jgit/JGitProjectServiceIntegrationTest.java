@@ -3,7 +3,7 @@ package com.octoperf.kraken.git.service.jgit;
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
-import com.octoperf.kraken.git.entity.command.GitFetchSubCommand;
+import com.octoperf.kraken.git.command.GitFetchSubCommand;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;
 import com.octoperf.kraken.git.service.api.GitUserService;

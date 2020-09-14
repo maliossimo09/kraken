@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitAddSubCommand;
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitAddSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;

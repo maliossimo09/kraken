@@ -2,7 +2,7 @@ package com.octoperf.kraken.git.service.api;
 
 import com.octoperf.kraken.git.entity.GitLog;
 import com.octoperf.kraken.git.entity.GitStatus;
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import com.octoperf.kraken.git.event.GitRefreshStorageEvent;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

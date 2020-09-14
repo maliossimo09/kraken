@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.server.rest;
 
 import com.octoperf.kraken.git.entity.GitLog;
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import com.octoperf.kraken.git.service.api.GitFileService;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.security.authentication.api.UserProvider;

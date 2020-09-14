@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
-import com.octoperf.kraken.git.entity.command.GitSubCommand;
+import com.octoperf.kraken.git.command.GitSubCommand;
 import com.octoperf.kraken.git.event.GitRefreshStorageEvent;
 import com.octoperf.kraken.git.event.GitStatusUpdateEvent;
 import com.octoperf.kraken.git.service.jgit.command.GitCommandExecutor;

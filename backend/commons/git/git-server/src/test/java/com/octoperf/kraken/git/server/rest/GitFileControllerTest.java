@@ -3,7 +3,7 @@ package com.octoperf.kraken.git.server.rest;
 import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.git.entity.GitLog;
 import com.octoperf.kraken.git.entity.GitLogTest;
-import com.octoperf.kraken.git.entity.command.GitAddSubCommandTest;
+import com.octoperf.kraken.git.command.GitAddSubCommandTest;
 import com.octoperf.kraken.git.service.api.GitFileService;
 import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;

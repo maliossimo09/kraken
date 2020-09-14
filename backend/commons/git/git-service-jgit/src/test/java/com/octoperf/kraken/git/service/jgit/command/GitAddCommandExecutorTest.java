@@ -1,7 +1,7 @@
 package com.octoperf.kraken.git.service.jgit.command;
 
-import com.octoperf.kraken.git.entity.command.GitAddSubCommand;
-import com.octoperf.kraken.git.entity.command.GitAddSubCommandTest;
+import com.octoperf.kraken.git.command.GitAddSubCommand;
+import com.octoperf.kraken.git.command.GitAddSubCommandTest;
 import org.eclipse.jgit.api.AddCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
