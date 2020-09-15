@@ -10,6 +10,9 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface GitFileService extends AutoCloseable {
+
+  Mono<Void> execute(String command);
+
   Mono<Void> execute(GitSubCommand command);
 
   Mono<List<GitLog>> log(String path);

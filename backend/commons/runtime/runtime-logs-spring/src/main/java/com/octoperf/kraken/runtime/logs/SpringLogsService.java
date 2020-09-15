@@ -4,60 +4,29 @@ import com.octoperf.kraken.runtime.entity.log.Log;
 import com.octoperf.kraken.runtime.entity.log.LogStatus;
 import com.octoperf.kraken.runtime.entity.log.LogType;
 import com.octoperf.kraken.security.entity.owner.Owner;
+import com.octoperf.kraken.tools.log.AbstractLogService;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 @Slf4j
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-final class SpringLogsService implements LogsService {
+final class SpringLogsService extends AbstractLogService<Log> implements LogsService {
 
   private static final int MAX_LOGS_SIZE = 500;
   private static final Duration MAX_LOGS_TIMEOUT_MS = Duration.ofMillis(1000);
   private static final String LINE_SEP = "\r\n";
-  private static final Duration INTERVAL = Duration.ofMillis(100);
 
-  ConcurrentLinkedQueue<Log> logs = new ConcurrentLinkedQueue<>();
-  ConcurrentMap<Owner, FluxSink<Log>> listeners = new ConcurrentHashMap<>();
   ConcurrentMap<String, Disposable> subscriptions = new ConcurrentHashMap<>();
-
-  @PostConstruct
-  void init() {
-    Flux.interval(INTERVAL)
-        .onErrorContinue((throwable, o) -> log.error("Failed to parse debug entry " + o, throwable))
-        .subscribeOn(Schedulers.newSingle("LogsService", true))
-        .subscribe(timestamp -> this.sendLogs());
-  }
-
-  private void sendLogs() {
-    Log current;
-    while ((current = logs.poll()) != null) {
-      for (Map.Entry<Owner, FluxSink<Log>> listener : this.listeners.entrySet()) {
-        if (listener.getKey().equals(current.getOwner())) {
-          listener.getValue().next(current);
-        }
-      }
-    }
-  }
-
-  @Override
-  public Flux<Log> listen(final Owner owner) {
-    return Flux.<Log>create(fluxSink -> this.listeners.put(owner, fluxSink))
-        .doOnTerminate(() -> this.listeners.remove(owner));
-  }
 
   @Override
   public boolean dispose(final Owner owner, final String id, final LogType type) {
@@ -68,13 +37,6 @@ final class SpringLogsService implements LogsService {
       return true;
     }
     return false;
-  }
-
-  @Override
-  public void add(final Log log) {
-    if (!this.listeners.isEmpty()) {
-      this.logs.add(log);
-    }
   }
 
   @Override
@@ -93,10 +55,8 @@ final class SpringLogsService implements LogsService {
 
   @Override
   public void clear() {
-    logs.clear();
-    listeners.clear();
+    super.clear();
     subscriptions.values().forEach(Disposable::dispose);
     subscriptions.clear();
   }
-
 }

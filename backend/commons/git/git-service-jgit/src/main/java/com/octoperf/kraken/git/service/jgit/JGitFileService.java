@@ -3,6 +3,7 @@ package com.octoperf.kraken.git.service.jgit;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.octoperf.kraken.git.command.GitCommand;
 import com.octoperf.kraken.git.entity.GitFileStatus;
 import com.octoperf.kraken.git.entity.GitIdentity;
 import com.octoperf.kraken.git.entity.GitLog;
@@ -18,11 +19,13 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
+import picocli.CommandLine;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +48,14 @@ final class JGitFileService implements GitFileService, AutoCloseable {
   @NonNull Git git;
   @NonNull EventBus eventBus;
   @NonNull Map<String, GitCommandExecutor> commandExecutors;
+
+  @Override
+  public Mono<Void> execute(final String command) {
+    return Mono.fromCallable(() -> {
+      final var args = CommandLineUtils.translateCommandline(command);
+      return (GitSubCommand) new CommandLine(new GitCommand()).parseArgs(args).subcommand().commandSpec().userObject();
+    }).flatMap(this::execute);
+  }
 
   @Override
   public Mono<Void> execute(final GitSubCommand command) {
