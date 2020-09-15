@@ -96,7 +96,7 @@ public class JGitFileServiceIntegrationTest {
 
     System.out.println("Add it to git");
     gitFileService.execute(GitAddSubCommand.builder()
-        .filePatterns(ImmutableList.of(fileName))
+//        .filePatterns(ImmutableList.of(fileName))
 //        .update(Optional.empty())
         .build()).block();
     assertThat(getStatus().getDiff().get(fileName)).isEqualTo(ImmutableList.of(GitFileStatus.ADDED));

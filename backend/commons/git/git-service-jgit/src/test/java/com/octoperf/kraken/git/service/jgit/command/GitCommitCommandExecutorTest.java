@@ -2,6 +2,7 @@ package com.octoperf.kraken.git.service.jgit.command;
 
 import com.octoperf.kraken.git.command.GitCommitSubCommand;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
+import com.octoperf.kraken.security.entity.owner.Owner;
 import org.eclipse.jgit.api.CommitCommand;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -24,7 +25,7 @@ public class GitCommitCommandExecutorTest extends GitSubCommandExecutorTest<GitC
   protected void shouldExecute() throws Exception {
     given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KRAKEN_USER));
     given(git.commit()).willReturn(gitCommand);
-    executor.execute(git, command).block();
+    executor.execute(Owner.PUBLIC, git, command).block();
     verify(gitCommand).setMessage(command.getMessage());
     verify(gitCommand).setCommitter(KRAKEN_USER.getUsername(), KRAKEN_USER.getEmail());
     verify(gitCommand).setAuthor(KRAKEN_USER.getUsername(), KRAKEN_USER.getEmail());
@@ -44,7 +45,7 @@ public class GitCommitCommandExecutorTest extends GitSubCommandExecutorTest<GitC
 
   @Override
   protected GitCommitCommandExecutor newCommandExecutor() {
-    return new GitCommitCommandExecutor(userProvider);
+    return new GitCommitCommandExecutor(null, userProvider);
   }
 
 }

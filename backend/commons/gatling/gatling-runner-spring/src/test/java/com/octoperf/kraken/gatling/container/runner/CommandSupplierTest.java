@@ -5,7 +5,7 @@ import com.octoperf.kraken.config.api.LocalRemoteProperties;
 import com.octoperf.kraken.config.gatling.api.GatlingLog;
 import com.octoperf.kraken.config.gatling.api.GatlingProperties;
 import com.octoperf.kraken.config.gatling.api.GatlingSimulation;
-import com.octoperf.kraken.runtime.command.Command;
+import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

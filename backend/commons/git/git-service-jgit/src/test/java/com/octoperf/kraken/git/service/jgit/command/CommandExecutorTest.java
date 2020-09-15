@@ -10,7 +10,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = {GitAddCommandExecutor.class, GitRmCommandExecutor.class})
+@SpringBootTest(classes = {GitAddCommandExecutor.class, GitCommitCommandExecutor.class})
 public class CommandExecutorTest {
   @Autowired
   List<GitCommandExecutor> commandExecutors;

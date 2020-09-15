@@ -2,8 +2,8 @@ package com.octoperf.kraken.runtime.backend.docker;
 
 import com.google.common.collect.ImmutableMap;
 import com.octoperf.kraken.Application;
-import com.octoperf.kraken.runtime.command.Command;
-import com.octoperf.kraken.runtime.command.CommandService;
+import com.octoperf.kraken.command.entity.Command;
+import com.octoperf.kraken.command.executor.api.CommandService;
 import com.octoperf.kraken.runtime.entity.task.FlatContainerTest;
 import com.octoperf.kraken.runtime.entity.task.TaskType;
 import com.octoperf.kraken.security.entity.owner.Owner;
