@@ -21,11 +21,11 @@
             <groupId>org.zeroturnaround</groupId>
             <artifactId>zt-exec</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.owasp.esapi</groupId>
-            <artifactId>esapi</artifactId>
-            <version>2.2.1.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.owasp.esapi</groupId>-->
+<!--            <artifactId>esapi</artifactId>-->
+<!--            <version>2.2.1.1</version>-->
+<!--        </dependency>-->
 
 
         <dependency>

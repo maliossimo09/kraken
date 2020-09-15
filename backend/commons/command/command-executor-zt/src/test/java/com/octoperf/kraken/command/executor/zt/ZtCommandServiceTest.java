@@ -102,7 +102,7 @@ public class ZtCommandServiceTest {
         .environment(ImmutableMap.of())
         .build();
     StepVerifier.create(service.execute(command))
-        .expectNext("cat: doesnotexist.txt: Aucun fichier ou dossier de ce type")
+        .expectNext("cat: doesnotexist.txt: No such file or directory")
         .expectError(InvalidExitValueException.class)
         .verify();
   }
