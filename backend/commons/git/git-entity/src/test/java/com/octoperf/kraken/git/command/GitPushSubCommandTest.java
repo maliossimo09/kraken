@@ -16,11 +16,19 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class GitAddSubCommandTest {
+public class GitPushSubCommandTest {
 
-  public static final GitAddSubCommand COMMAND = GitAddSubCommand.builder()
-      .filePatterns(FilePatternsParametersTest.PARAMETERS)
-      .update(true)
+  public static final GitPushSubCommand COMMAND = GitPushSubCommand.builder()
+      .all(false)
+      .atomic(false)
+      .dryRun(DryRunOptionTest.OPTION)
+      .force(ForceOptionTest.OPTION)
+      .pushOptions(ImmutableList.of("option"))
+      .refSpecs(ImmutableList.of("refSpec"))
+      .remote(RemoteParametersTest.PARAMETERS)
+      .tags(false)
+      .thin(ThinOptionTest.OPTION)
+      .timeout(TimeoutOptionTest.OPTION)
       .build();
 
   @Autowired
@@ -45,33 +53,27 @@ public class GitAddSubCommandTest {
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"add\"}", GitSubCommand.class)).isEqualTo(GitAddSubCommand.builder()
-        .filePatterns(FilePatternsParameters.builder().build())
-        .update(null)
+    Assertions.assertThat(mapper.readValue("{\"type\": \"push\"}", GitSubCommand.class)).isEqualTo(GitPushSubCommand.builder()
         .build());
   }
 
   @Test
   void shouldParseCommand() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("add", "-u", "file1.txt", "file2.txt").subcommand().commandSpec().userObject())
-        .isEqualTo(GitAddSubCommand.builder()
-            .filePatterns(FilePatternsParameters.builder().filePatterns(ImmutableList.of("file1.txt", "file2.txt")).build())
-            .update(true)
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("push", "--all", "remote", "file1.txt", "file2.txt", "-o", "opt1", "--push-option", "opt2").subcommand().commandSpec().userObject())
+        .isEqualTo(GitPushSubCommand.builder()
+            .all(true)
+            .refSpecs(ImmutableList.of("file1.txt", "file2.txt"))
+            .pushOptions(ImmutableList.of("opt1", "opt2"))
+            .remote(RemoteParameters.builder().remote("remote").build())
             .build());
   }
 
   @Test
   void shouldParseCommandNoOption() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("add", "file1.txt").subcommand().commandSpec().userObject())
-        .isEqualTo(GitAddSubCommand.builder()
-            .filePatterns(FilePatternsParameters.builder().filePatterns(ImmutableList.of("file1.txt")).build())
-            .update(null)
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("push").subcommand().commandSpec().userObject())
+        .isEqualTo(GitPushSubCommand.builder()
+            .remote(RemoteParameters.builder().remote("origin").build())
             .build());
-  }
-
-  @Test
-  void shouldParseCommandNoParam() {
-    org.junit.jupiter.api.Assertions.assertThrows(CommandLine.MissingParameterException.class, () -> new CommandLine(new GitCommand()).parseArgs("add"));
   }
 
 }

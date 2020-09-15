@@ -20,7 +20,7 @@ public class GitPushSubCommand implements GitSubCommand {
   @CommandLine.Mixin
   RemoteParameters remote;
 
-  @CommandLine.Parameters(paramLabel = "REF", description = "Specify what destination ref to update with what source object.", index = "0", arity = "0..*")
+  @CommandLine.Parameters(paramLabel = "REF", description = "Specify what destination ref to update with what source object.", index = "1", arity = "0..*")
   List<String> refSpecs;
 
   @CommandLine.Option(names = {"--all"}, description = "Push all branches")

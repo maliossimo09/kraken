@@ -3,12 +3,10 @@ package com.octoperf.kraken.git.command;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
-public class FastForwardOptionTest {
+public class TimeoutOptionTest {
 
-  public static final FastForwardOption OPTION = FastForwardOption.builder()
-      .ff(true)
-      .ffOnly(false)
-      .noFf(null)
+  public static final TimeoutOption OPTION = TimeoutOption.builder()
+      .timeout(42)
       .build();
 
 

@@ -11,13 +11,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = Application.class)
 public class MergeStrategyOptionTest {
 
-  public static final MergeStrategyOption COMMAND = MergeStrategyOption.builder()
+  public static final MergeStrategyOption OPTION = MergeStrategyOption.builder()
       .build();
 
 
   @Test
   public void shouldPassString() {
-    TestUtils.shouldPassToString(COMMAND.getClass());
+    TestUtils.shouldPassToString(OPTION.getClass());
   }
 
 }

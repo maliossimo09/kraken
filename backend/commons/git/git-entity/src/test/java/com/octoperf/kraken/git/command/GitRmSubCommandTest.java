@@ -16,11 +16,11 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class GitAddSubCommandTest {
+public class GitRmSubCommandTest {
 
-  public static final GitAddSubCommand COMMAND = GitAddSubCommand.builder()
+  public static final GitRmSubCommand COMMAND = GitRmSubCommand.builder()
       .filePatterns(FilePatternsParametersTest.PARAMETERS)
-      .update(true)
+      .cached(true)
       .build();
 
   @Autowired
@@ -45,33 +45,33 @@ public class GitAddSubCommandTest {
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"add\"}", GitSubCommand.class)).isEqualTo(GitAddSubCommand.builder()
+    Assertions.assertThat(mapper.readValue("{\"type\": \"rm\"}", GitSubCommand.class)).isEqualTo(GitRmSubCommand.builder()
         .filePatterns(FilePatternsParameters.builder().build())
-        .update(null)
+        .cached(null)
         .build());
   }
 
   @Test
   void shouldParseCommand() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("add", "-u", "file1.txt", "file2.txt").subcommand().commandSpec().userObject())
-        .isEqualTo(GitAddSubCommand.builder()
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("rm", "--cached", "file1.txt", "file2.txt").subcommand().commandSpec().userObject())
+        .isEqualTo(GitRmSubCommand.builder()
             .filePatterns(FilePatternsParameters.builder().filePatterns(ImmutableList.of("file1.txt", "file2.txt")).build())
-            .update(true)
+            .cached(true)
             .build());
   }
 
   @Test
   void shouldParseCommandNoOption() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("add", "file1.txt").subcommand().commandSpec().userObject())
-        .isEqualTo(GitAddSubCommand.builder()
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("rm", "file1.txt").subcommand().commandSpec().userObject())
+        .isEqualTo(GitRmSubCommand.builder()
             .filePatterns(FilePatternsParameters.builder().filePatterns(ImmutableList.of("file1.txt")).build())
-            .update(null)
+            .cached(null)
             .build());
   }
 
   @Test
   void shouldParseCommandNoParam() {
-    org.junit.jupiter.api.Assertions.assertThrows(CommandLine.MissingParameterException.class, () -> new CommandLine(new GitCommand()).parseArgs("add"));
+    org.junit.jupiter.api.Assertions.assertThrows(CommandLine.MissingParameterException.class, () -> new CommandLine(new GitCommand()).parseArgs("rm"));
   }
 
 }

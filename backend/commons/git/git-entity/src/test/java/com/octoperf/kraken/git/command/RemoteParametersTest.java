@@ -11,13 +11,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = Application.class)
 public class RemoteParametersTest {
 
-  public static final RemoteParameters COMMAND = RemoteParameters.builder().remote("origin")
+  public static final RemoteParameters PARAMETERS = RemoteParameters.builder().remote("origin")
       .build();
 
 
   @Test
   public void shouldPassString() {
-    TestUtils.shouldPassToString(COMMAND.getClass());
+    TestUtils.shouldPassToString(PARAMETERS.getClass());
   }
 
 }

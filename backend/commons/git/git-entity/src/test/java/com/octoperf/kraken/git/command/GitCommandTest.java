@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 @SpringBootTest(classes = Application.class)
 public class GitCommandTest {
 
-  public static final GitCommand COMMAND = new GitCommand();
+  public static final GitCommand COMMAND = GitCommand.builder().build();
 
 
   @Test

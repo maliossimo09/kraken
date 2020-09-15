@@ -18,6 +18,11 @@ import java.io.IOException;
 public class GitMergeSubCommandTest {
 
   public static final GitMergeSubCommand COMMAND = GitMergeSubCommand.builder()
+      .ff(FastForwardOptionTest.OPTION)
+      .message("message")
+      .noCommit(false)
+      .squash(false)
+      .strategy(MergeStrategyOptionTest.OPTION)
       .ref("ref")
       .build();
 

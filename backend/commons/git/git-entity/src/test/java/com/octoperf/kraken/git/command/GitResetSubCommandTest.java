@@ -16,14 +16,14 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class GitCommitSubCommandTest {
+public class GitResetSubCommandTest {
 
-  public static final GitCommitSubCommand COMMAND = GitCommitSubCommand.builder()
-      .message("message")
-      .all(true)
-      .amend(true)
-      .only(true)
-      .paths(ImmutableList.of("path"))
+  public static final GitResetSubCommand COMMAND = GitResetSubCommand.builder()
+      .commit("commit")
+      .hard(true)
+      .mixed(false)
+      .soft(false)
+      .paths(ImmutableList.of("path1", "path2"))
       .build();
 
   @Autowired
@@ -43,23 +43,24 @@ public class GitCommitSubCommandTest {
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"commit\", \"message\": \"message\"}", GitSubCommand.class)).isEqualTo(GitCommitSubCommand.builder()
-        .message("message")
+    Assertions.assertThat(mapper.readValue("{\"type\": \"reset\"}", GitSubCommand.class)).isEqualTo(GitResetSubCommand.builder()
         .build());
   }
 
   @Test
   void shouldParseCommand() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("commit", "-m", "message", "-a", "--amend").subcommand().commandSpec().userObject())
-        .isEqualTo(GitCommitSubCommand.builder()
-            .message("message")
-            .all(true)
-            .amend(true)
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("reset", "--hard", "commit", "--path", "path1", "-p", "path2").subcommand().commandSpec().userObject())
+        .isEqualTo(GitResetSubCommand.builder()
+            .hard(true)
+            .commit("commit")
+            .paths(ImmutableList.of("path1", "path2"))
             .build());
   }
 
   @Test
   void shouldParseCommandNoParam() {
-    org.junit.jupiter.api.Assertions.assertThrows(CommandLine.MissingParameterException.class, () -> new CommandLine(new GitCommand()).parseArgs("commit"));
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("reset").subcommand().commandSpec().userObject())
+        .isEqualTo(GitResetSubCommand.builder()
+            .build());
   }
 }

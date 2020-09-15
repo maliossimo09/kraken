@@ -1,7 +1,6 @@
 package com.octoperf.kraken.git.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.assertj.core.api.Assertions;
@@ -16,14 +15,13 @@ import java.io.IOException;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
-public class GitCommitSubCommandTest {
+public class GitRebaseSubCommandTest {
 
-  public static final GitCommitSubCommand COMMAND = GitCommitSubCommand.builder()
-      .message("message")
-      .all(true)
-      .amend(true)
-      .only(true)
-      .paths(ImmutableList.of("path"))
+  public static final GitRebaseSubCommand COMMAND = GitRebaseSubCommand.builder()
+      .onto("onto")
+      .operation("continue")
+      .preserveMerges(true)
+      .strategy(MergeStrategyOptionTest.OPTION)
       .build();
 
   @Autowired
@@ -43,23 +41,23 @@ public class GitCommitSubCommandTest {
 
   @Test
   public void shouldDeSerializeEmpty() throws IOException {
-    Assertions.assertThat(mapper.readValue("{\"type\": \"commit\", \"message\": \"message\"}", GitSubCommand.class)).isEqualTo(GitCommitSubCommand.builder()
-        .message("message")
+    Assertions.assertThat(mapper.readValue("{\"type\": \"rebase\"}", GitSubCommand.class)).isEqualTo(GitRebaseSubCommand.builder()
         .build());
   }
 
   @Test
   void shouldParseCommand() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("commit", "-m", "message", "-a", "--amend").subcommand().commandSpec().userObject())
-        .isEqualTo(GitCommitSubCommand.builder()
-            .message("message")
-            .all(true)
-            .amend(true)
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("rebase", "--operation", "begin", "-s", "ours").subcommand().commandSpec().userObject())
+        .isEqualTo(GitRebaseSubCommand.builder()
+            .operation("begin")
+            .strategy(MergeStrategyOption.builder().strategyName("ours").build())
             .build());
   }
 
   @Test
   void shouldParseCommandNoParam() {
-    org.junit.jupiter.api.Assertions.assertThrows(CommandLine.MissingParameterException.class, () -> new CommandLine(new GitCommand()).parseArgs("commit"));
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("rebase").subcommand().commandSpec().userObject())
+        .isEqualTo(GitRebaseSubCommand.builder()
+            .build());
   }
 }

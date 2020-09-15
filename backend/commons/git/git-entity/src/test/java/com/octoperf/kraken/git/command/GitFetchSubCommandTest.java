@@ -19,10 +19,23 @@ public class GitFetchSubCommandTest {
 
   public static final GitFetchSubCommand COMMAND = GitFetchSubCommand.builder()
       .remote(RemoteParameters.builder().remote("origin").build())
+      .dryRun(DryRunOptionTest.OPTION)
+      .force(ForceOptionTest.OPTION)
+      .fsck(false)
+      .prune(false)
+      .quiet(true)
+      .tags(true)
+      .thin(ThinOptionTest.OPTION)
+      .timeout(TimeoutOptionTest.OPTION)
       .build();
 
   @Autowired
   private ObjectMapper mapper;
+
+  @Test
+  public void shouldPassEquals() {
+    TestUtils.shouldPassEquals(COMMAND.getClass());
+  }
 
   @Test
   public void shouldPassString() {
@@ -47,7 +60,7 @@ public class GitFetchSubCommandTest {
     Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("fetch", "origin", "-f").subcommand().commandSpec().userObject())
         .isEqualTo(GitFetchSubCommand.builder()
             .remote(RemoteParameters.builder().remote("origin").build())
-            .force(true)
+            .force(ForceOption.builder().force(true).build())
             .build());
   }
 

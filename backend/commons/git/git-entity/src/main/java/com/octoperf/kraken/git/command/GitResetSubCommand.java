@@ -29,7 +29,7 @@ public class GitResetSubCommand implements GitSubCommand {
   @CommandLine.Parameters(paramLabel = "commit-ish", description = "Reset to given reference name", index = "0", arity = "0..1")
   String commit;
 
-  @CommandLine.Option(names = {"--"}, description = "Paths to reset")
+  @CommandLine.Option(names = {"-p", "--path"}, description = "Paths to reset")
   final List<String> paths;
 
   @JsonCreator

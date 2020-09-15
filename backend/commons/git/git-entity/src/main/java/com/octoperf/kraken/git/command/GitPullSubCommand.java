@@ -39,5 +39,8 @@ public class GitPullSubCommand implements GitSubCommand {
     this.rebase = rebase;
   }
 
+  public GitPullSubCommand() {
+    this(null, null, null, null);
 
+  }
 }

@@ -11,7 +11,12 @@ import java.util.Optional;
     GitAddSubCommand.class,
     GitCommitSubCommand.class,
     GitFetchSubCommand.class,
-    GitMergeSubCommand.class
+    GitMergeSubCommand.class,
+    GitPullSubCommand.class,
+    GitPushSubCommand.class,
+    GitRebaseSubCommand.class,
+    GitResetSubCommand.class,
+    GitRmSubCommand.class
 })
 @Value
 public class GitCommand {

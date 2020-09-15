@@ -8,6 +8,8 @@ import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import picocli.CommandLine;
 
+import java.util.Optional;
+
 @Value
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = false)
 @CommandLine.Command
@@ -19,6 +21,6 @@ public class RemoteParameters {
   @JsonCreator
   @Builder(toBuilder = true)
   public RemoteParameters(@JsonProperty("remote") final String remote) {
-    this.remote = remote;
+    this.remote = Optional.ofNullable(remote).orElse("origin");
   }
 }
