@@ -48,7 +48,7 @@ public class DockerTaskServiceExecutionIntegrationTest {
   public void before() {
     final var clean = Command.builder()
         .path(Paths.get("testDir").toAbsolutePath().toString())
-        .commands(Arrays.asList("/bin/sh", "-c", "docker rm -v $(docker ps -a -q -f status=exited)"))
+        .args(Arrays.asList("/bin/sh", "-c", "docker rm -v $(docker ps -a -q -f status=exited)"))
         .environment(ImmutableMap.of())
         .build();
     commandService.execute(clean).onErrorReturn("").blockLast();

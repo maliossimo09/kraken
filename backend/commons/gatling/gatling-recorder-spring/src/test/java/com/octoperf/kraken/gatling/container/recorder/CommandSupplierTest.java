@@ -53,7 +53,7 @@ public class CommandSupplierTest {
         .environment(ImmutableMap.of(KRAKEN_GATLING_LOGS_INFO, "infoLog",
           KRAKEN_GATLING_LOGS_DEBUG, "debugLog",
             JAVA_OPTS, "-Dfoo=\"bar\""))
-        .commands(of(
+        .args(of(
             "./recorder.sh",
             "--headless", "true",
             "--mode", "Har",

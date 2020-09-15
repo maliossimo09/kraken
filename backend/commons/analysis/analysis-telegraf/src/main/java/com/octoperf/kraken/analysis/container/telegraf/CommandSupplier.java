@@ -40,7 +40,7 @@ final class CommandSupplier implements Supplier<Command> {
             .put(KRAKEN_HOST_ID, container.getHostId())
             .build()
         )
-        .commands(ImmutableList.of("telegraf"))
+        .args(ImmutableList.of("telegraf"))
         .build();
   }
 }

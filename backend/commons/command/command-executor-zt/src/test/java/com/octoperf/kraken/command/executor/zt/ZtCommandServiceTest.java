@@ -43,7 +43,7 @@ public class ZtCommandServiceTest {
   public void shouldEchoEnvData() {
     final var command = Command.builder()
         .path(".")
-        .commands(Arrays.asList("/bin/sh", "-c", "echo $KRAKEN_VERSION"))
+        .args(Arrays.asList("/bin/sh", "-c", "echo $KRAKEN_VERSION"))
         .environment(ImmutableMap.of(KRAKEN_VERSION, "BAR"))
         .build();
     final var result = service.execute(command).take(1).collectList().block();
@@ -56,7 +56,7 @@ public class ZtCommandServiceTest {
   public void shouldPrintEnv() {
     final var command = Command.builder()
         .path(".")
-        .commands(Arrays.asList("/bin/sh", "-c", "printenv"))
+        .args(Arrays.asList("/bin/sh", "-c", "printenv"))
         .environment(ImmutableMap.of(KRAKEN_VERSION, "BAR"))
         .build();
     final var result = service.execute(command).collectList().block();
@@ -69,7 +69,7 @@ public class ZtCommandServiceTest {
   public void shouldCancelSleepSimple() throws InterruptedException {
     final var command = Command.builder()
         .path(".")
-        .commands(Arrays.asList("/bin/sh", "-c", "sleep 5 && echo run"))
+        .args(Arrays.asList("/bin/sh", "-c", "sleep 5 && echo run"))
         .environment(ImmutableMap.of())
         .build();
     final var logs = new ArrayList<String>();
@@ -86,7 +86,7 @@ public class ZtCommandServiceTest {
   public void shouldCommandFail() {
     final var command = Command.builder()
         .path(".")
-        .commands(Collections.singletonList("ca va fail !"))
+        .args(Collections.singletonList("ca va fail !"))
         .environment(ImmutableMap.of())
         .build();
     StepVerifier.create(service.execute(command))
@@ -98,7 +98,7 @@ public class ZtCommandServiceTest {
   public void shouldCommandExitStatus() {
     final var command = Command.builder()
         .path(".")
-        .commands(ImmutableList.of("cat", "doesnotexist.txt"))
+        .args(ImmutableList.of("cat", "doesnotexist.txt"))
         .environment(ImmutableMap.of())
         .build();
     StepVerifier.create(service.execute(command))
@@ -111,12 +111,12 @@ public class ZtCommandServiceTest {
   public void shouldRunDockerCommands() {
     final var up = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker-compose", "up", "-d"))
+        .args(Arrays.asList("docker-compose", "up", "-d"))
         .environment(ImmutableMap.of())
         .build();
     final var ps = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "ps",
             "--filter", "label=com.octoperf/id",
             "--filter", "status=running",
@@ -125,7 +125,7 @@ public class ZtCommandServiceTest {
         .build();
     final var rename = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "rename",
             "test-nginx-STARTING",
             "test-nginx-READY"))
@@ -133,7 +133,7 @@ public class ZtCommandServiceTest {
         .build();
     final var down = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker-compose", "down"))
+        .args(Arrays.asList("docker-compose", "down"))
         .environment(ImmutableMap.of())
         .build();
     final var upResult = service.execute(up).collectList().block();
@@ -171,12 +171,12 @@ public class ZtCommandServiceTest {
     final var path = Paths.get("testDir/echo").toAbsolutePath().toString();
     final var up = Command.builder()
         .path(path)
-        .commands(Arrays.asList("docker-compose", "up"))
+        .args(Arrays.asList("docker-compose", "up"))
         .environment(ImmutableMap.of())
         .build();
     final var down = Command.builder()
         .path(path)
-        .commands(Arrays.asList("docker-compose", "down"))
+        .args(Arrays.asList("docker-compose", "down"))
         .environment(ImmutableMap.of())
         .build();
 
@@ -201,7 +201,7 @@ public class ZtCommandServiceTest {
     final var path = Paths.get("testDir/echo").toAbsolutePath().toString();
     final var cat = Command.builder()
         .path(path)
-        .commands(Arrays.asList("cat", "docker-compose.yml"))
+        .args(Arrays.asList("cat", "docker-compose.yml"))
         .environment(ImmutableMap.of())
         .build();
 

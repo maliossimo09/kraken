@@ -81,7 +81,7 @@ public class DockerTaskServiceTest {
     verify(logsService).push(eq(context.getOwner()), eq(context.getTaskId()), eq(LogType.TASK), any());
 
     final var executed = commandCaptor.getValue();
-    assertThat(executed.getCommands()).isEqualTo(Arrays.asList("docker-compose",
+    assertThat(executed.getArgs()).isEqualTo(Arrays.asList("docker-compose",
         "--no-ansi",
         "up",
         "-d",
@@ -127,7 +127,7 @@ public class DockerTaskServiceTest {
     verify(commandService).execute(commandCaptor.capture());
 
     final var executed = commandCaptor.getValue();
-    assertThat(executed.getCommands()).isEqualTo(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(docker ps -a -q --filter label=%s=%s --filter ownerToFilter)", COM_OCTOPERF_TASKID, context.getTaskId())));
+    assertThat(executed.getArgs()).isEqualTo(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(docker ps -a -q --filter label=%s=%s --filter ownerToFilter)", COM_OCTOPERF_TASKID, context.getTaskId())));
   }
 
   @Test
@@ -139,14 +139,14 @@ public class DockerTaskServiceTest {
     verify(commandService).execute(commandCaptor.capture());
 
     final var executed = commandCaptor.getValue();
-    assertThat(executed.getCommands()).isEqualTo(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(docker ps -a -q --filter label=%s=%s --filter ownerToFilter)", COM_OCTOPERF_TASKID, context.getTaskId())));
+    assertThat(executed.getArgs()).isEqualTo(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(docker ps -a -q --filter label=%s=%s --filter ownerToFilter)", COM_OCTOPERF_TASKID, context.getTaskId())));
   }
 
   @Test
   public void shouldList() {
     final var listCommand = Command.builder()
         .path(".")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "ps",
             "-a",
             "--filter", "label=com.octoperf/taskId",

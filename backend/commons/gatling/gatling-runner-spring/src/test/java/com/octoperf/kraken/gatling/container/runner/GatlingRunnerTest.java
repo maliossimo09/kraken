@@ -69,7 +69,7 @@ public class GatlingRunnerTest extends AbstractContainerExecutorTest {
     verify(storageClient).uploadFile(any(Path.class), any());
     verify(commandService).execute(Command.builder()
         .path(gatlingProperties.getHome())
-        .commands(ImmutableList.of("ls", "-lR"))
+        .args(ImmutableList.of("ls", "-lR"))
         .environment(ImmutableMap.of())
         .build());
     verify(commandService).execute(CommandTest.SHELL_COMMAND);

@@ -54,7 +54,7 @@ final class DockerTaskService implements TaskService {
       final var path = this.createDockerComposeFolder(context.getTaskId(), template);
       final var command = Command.builder()
           .path(path.toString())
-          .commands(Arrays.asList("docker-compose",
+          .args(Arrays.asList("docker-compose",
               "--no-ansi",
               "up",
               "-d",
@@ -88,7 +88,7 @@ final class DockerTaskService implements TaskService {
 
       return Command.builder()
           .path(this.createCommandFolder(context.getTaskId()).toString())
-          .commands(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(%s)", listCommand)))
+          .args(Arrays.asList("/bin/sh", "-c", String.format("docker rm -v -f $(%s)", listCommand)))
           .environment(ImmutableMap.of())
           .build();
     })
@@ -108,7 +108,7 @@ final class DockerTaskService implements TaskService {
 
     final var command = Command.builder()
         .path(".")
-        .commands(commandBuilder.build())
+        .args(commandBuilder.build())
         .environment(ImmutableMap.of())
         .build();
 

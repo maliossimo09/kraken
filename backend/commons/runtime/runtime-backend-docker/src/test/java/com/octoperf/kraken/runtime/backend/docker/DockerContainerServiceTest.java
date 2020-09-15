@@ -52,7 +52,7 @@ public class DockerContainerServiceTest {
     // Rename
     final var renameCommand = Command.builder()
         .path(".")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "rename",
             containerId,
             containerName))
@@ -77,7 +77,7 @@ public class DockerContainerServiceTest {
     // Logs
     final var logsCommand = Command.builder()
         .path(".")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "logs",
             "-f", containerId))
         .environment(ImmutableMap.of())

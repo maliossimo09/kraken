@@ -13,7 +13,7 @@ public class CommandTest {
   public static final Command SHELL_COMMAND = Command.builder()
       .path(".")
       .environment(ImmutableMap.of(KRAKEN_VERSION, "1.0.0"))
-      .commands(Arrays.asList("java", "--version"))
+      .args(Arrays.asList("java", "--version"))
       .build();
 
   @Test

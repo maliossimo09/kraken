@@ -43,7 +43,7 @@ public class DockerContainerFindServiceTest {
     final var container = FlatContainerTest.CONTAINER;
     final var command = Command.builder()
         .path(".")
-        .commands(Arrays.asList("docker",
+        .args(Arrays.asList("docker",
             "ps",
             "--filter", "label=com.octoperf/taskId=" + container.getTaskId(),
             "--filter", "label=com.octoperf/containerName=" + container.getName(),

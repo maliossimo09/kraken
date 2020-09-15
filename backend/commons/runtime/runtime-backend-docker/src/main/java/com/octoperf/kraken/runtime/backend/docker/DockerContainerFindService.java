@@ -42,7 +42,7 @@ final class DockerContainerFindService implements ContainerFindService {
 
     final var command = Command.builder()
         .path(".")
-        .commands(commandBuilder.build())
+        .args(commandBuilder.build())
         .environment(ImmutableMap.of())
         .build();
 

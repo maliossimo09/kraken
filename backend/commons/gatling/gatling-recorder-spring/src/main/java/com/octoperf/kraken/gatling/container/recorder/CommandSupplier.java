@@ -36,7 +36,7 @@ final class CommandSupplier implements Supplier<Command> {
         KRAKEN_GATLING_LOGS_DEBUG, logs.getDebug(),
         JAVA_OPTS, gatling.getJavaOpts())
       )
-      .commands(ImmutableList.of(
+      .args(ImmutableList.of(
         "./recorder.sh",
         "--headless", "true",
         "--mode", "Har",

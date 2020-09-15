@@ -76,7 +76,7 @@ final class JGitFileService implements GitFileService, AutoCloseable {
             .map(revCommit -> GitLog.builder()
                 .id(ObjectId.toString(revCommit.getId()))
                 .message(revCommit.getFullMessage())
-                .time(revCommit.getCommitTime())
+                .time((long) revCommit.getCommitTime())
                 .path(path)
                 .encoding(revCommit.getEncoding().name())
                 .author(GitIdentity.builder().name(revCommit.getAuthorIdent().getName()).email(revCommit.getAuthorIdent().getEmailAddress()).build())

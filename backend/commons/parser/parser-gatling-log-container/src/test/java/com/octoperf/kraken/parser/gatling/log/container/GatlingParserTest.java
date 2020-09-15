@@ -74,7 +74,7 @@ public class GatlingParserTest extends AbstractContainerExecutorTest {
     verify(writer).write(any());
     verify(commandService).execute(Command.builder()
         .path(gatling.getHome())
-        .commands(ImmutableList.of("ls", "-lR"))
+        .args(ImmutableList.of("ls", "-lR"))
         .environment(ImmutableMap.of())
         .build());
     assertThat(entries.build().size()).isBetween(38, 40);

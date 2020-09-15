@@ -13,7 +13,7 @@ import java.util.Map;
 public class Command {
 
   @NonNull
-  List<String> commands;
+  List<String> args;
   @NonNull
   Map<KrakenEnvironmentKeys, String> environment;
   @NonNull

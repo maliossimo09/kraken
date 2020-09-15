@@ -26,8 +26,8 @@ public class GitStatus {
       @NonNull @JsonProperty("repositoryStateDescription") final String repositoryStateDescription,
       @NonNull @JsonProperty("diff") final Multimap<String, GitFileStatus> diff,
       @NonNull @JsonProperty("conflicts") final Map<String, String> conflicts,
-      @NonNull @JsonProperty("uncommittedChanges") final boolean uncommittedChanges,
-      @NonNull @JsonProperty("clean") final boolean clean
+      @NonNull @JsonProperty("uncommittedChanges") final Boolean uncommittedChanges,
+      @NonNull @JsonProperty("clean") final Boolean clean
   ) {
     super();
     this.repositoryState = repositoryState;

@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.owasp.esapi.ESAPI;
+import org.owasp.esapi.codecs.UnixCodec;
 import org.springframework.stereotype.Component;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
@@ -33,12 +35,13 @@ final class ZtCommandService implements CommandService {
   @Override
   public Flux<String> execute(final Command command) {
     return Flux.<String>create(emitter -> {
-      log.debug(String.format("Executing command %s in path %s", String.join(" ", command.getCommands()), command.getPath()));
+      log.debug(String.format("Executing command %s in path %s", String.join(" ", command.getArgs()), command.getPath()));
       final var file = Paths.get(command.getPath()).toFile();
       final var errors = ImmutableList.<String>builder();
+      final var args = command.getArgs().stream().map(arg -> ESAPI.encoder().encodeForOS(new UnixCodec(), arg)).collect(Collectors.toUnmodifiableList());
       final var process = new ProcessExecutor()
           .exitValueNormal()
-          .command(command.getCommands())
+          .command(args)
           .directory(file)
           .environment(command.getEnvironment().entrySet().stream()
               .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue)))
@@ -61,7 +64,7 @@ final class ZtCommandService implements CommandService {
       }
       emitter.complete();
     })
-    .map(stringCleaner);
+        .map(stringCleaner);
   }
 
 }

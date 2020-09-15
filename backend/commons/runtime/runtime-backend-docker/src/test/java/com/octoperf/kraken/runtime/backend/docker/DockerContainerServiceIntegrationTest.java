@@ -46,7 +46,7 @@ public class DockerContainerServiceIntegrationTest {
   public void before() {
     final var up = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker-compose", "up", "-d"))
+        .args(Arrays.asList("docker-compose", "up", "-d"))
         .environment(ImmutableMap.of())
         .build();
     commandService.execute(up).blockLast();
@@ -56,7 +56,7 @@ public class DockerContainerServiceIntegrationTest {
   public void after() {
     final var down = Command.builder()
         .path("./testDir")
-        .commands(Arrays.asList("docker-compose", "down"))
+        .args(Arrays.asList("docker-compose", "down"))
         .environment(ImmutableMap.of())
         .build();
     commandService.execute(down).blockLast();

@@ -10,7 +10,7 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public class GitLog {
   String id;
-  long time;
+  Long time;
   GitIdentity author;
   GitIdentity committer;
   String message;
@@ -19,7 +19,7 @@ public class GitLog {
 
   @JsonCreator
   public GitLog(@NonNull @JsonProperty("id") final String id,
-                @NonNull @JsonProperty("time") final long time,
+                @NonNull @JsonProperty("time") final Long time,
                 @NonNull @JsonProperty("author") final GitIdentity author,
                 @NonNull @JsonProperty("committer") final GitIdentity committer,
                 @NonNull @JsonProperty("message") final String message,

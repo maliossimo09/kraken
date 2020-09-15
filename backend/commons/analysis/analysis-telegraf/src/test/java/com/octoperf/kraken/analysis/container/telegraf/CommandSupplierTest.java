@@ -59,7 +59,7 @@ public class CommandSupplierTest {
                 .put(KrakenEnvironmentKeys.KRAKEN_HOST_ID, "hostId")
                 .build()
             )
-            .commands(ImmutableList.of("telegraf"))
+            .args(ImmutableList.of("telegraf"))
             .build());
   }
 
