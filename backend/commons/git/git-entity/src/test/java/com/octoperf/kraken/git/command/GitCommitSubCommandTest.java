@@ -22,8 +22,7 @@ public class GitCommitSubCommandTest {
       .message("message")
       .all(true)
       .amend(true)
-      .only(true)
-      .paths(ImmutableList.of("path"))
+      .only(ImmutableList.of("path"))
       .build();
 
   @Autowired

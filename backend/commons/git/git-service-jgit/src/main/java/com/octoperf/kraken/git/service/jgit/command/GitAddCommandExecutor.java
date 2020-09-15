@@ -2,7 +2,10 @@ package com.octoperf.kraken.git.service.jgit.command;
 
 import com.octoperf.kraken.git.command.GitAddSubCommand;
 import com.octoperf.kraken.git.command.GitSubCommand;
+import com.octoperf.kraken.git.service.api.GitLogsService;
+import com.octoperf.kraken.security.entity.owner.Owner;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.Git;
@@ -19,20 +22,24 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class GitAddCommandExecutor implements GitCommandExecutor {
 
+  @NonNull GitLogsService logsService;
+
   @Override
   public String getCommandClass() {
     return GitAddSubCommand.class.getSimpleName();
   }
 
   @Override
-  public Mono<Void> execute(final Git git,
+  public Mono<Void> execute(final Owner owner,
+                            final Git git,
                             final GitSubCommand command) {
     return Mono.fromCallable(() -> {
       final var addCommand = (GitAddSubCommand) command;
-      final var add = git.add();
-      addCommand.getFilePatterns().forEach(add::addFilepattern);
-      Optional.ofNullable(addCommand.getUpdate()).ifPresent(add::setUpdate);
-      add.call();
+      final var cmd = git.add();
+      addCommand.getFilePatterns().getFilePatterns().forEach(cmd::addFilepattern);
+      Optional.ofNullable(addCommand.getUpdate()).ifPresent(cmd::setUpdate);
+      cmd.call();
+      logsService.add(owner, "Add done");
       return null;
     });
   }

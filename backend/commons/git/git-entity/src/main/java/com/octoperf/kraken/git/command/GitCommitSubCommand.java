@@ -23,30 +23,25 @@ public class GitCommitSubCommand implements GitSubCommand {
   @CommandLine.Option(names = {"-a", "--all"}, description = "Commit all modified and deleted files")
   final Boolean all;
 
-  @CommandLine.Option(names = {"-o", "--only"}, description = "Commit specified paths only")
-  final Boolean only;
-
   @CommandLine.Option(names = {"--amend"}, description = "Amend the tip of the current branch")
   final Boolean amend;
 
   @CommandLine.Parameters(paramLabel = "paths", description = "See --only")
-  final List<String> paths;
+  final List<String> only;
 
   @JsonCreator
   @Builder(toBuilder = true)
   public GitCommitSubCommand(@JsonProperty("message") final String message,
                              @JsonProperty("all") final Boolean all,
-                             @JsonProperty("only") final Boolean only,
                              @JsonProperty("amend") final Boolean amend,
-                             @JsonProperty("paths") final List<String> paths) {
+                             @JsonProperty("only") final List<String> only) {
     this.message = message;
     this.all = all;
-    this.only = only;
     this.amend = amend;
-    this.paths = Optional.ofNullable(paths).orElse(ImmutableList.of());
+    this.only = Optional.ofNullable(only).orElse(ImmutableList.of());
   }
 
   private GitCommitSubCommand() {
-    this(null, null, null, null, null);
+    this(null, null, null, null);
   }
 }

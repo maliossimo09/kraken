@@ -49,7 +49,7 @@ public class GitResetSubCommandTest {
 
   @Test
   void shouldParseCommand() {
-    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("reset", "--hard", "commit", "--path", "path1", "-p", "path2").subcommand().commandSpec().userObject())
+    Assertions.assertThat(new CommandLine(new GitCommand()).parseArgs("reset", "--hard", "commit", "--", "path1", "path2").subcommand().commandSpec().userObject())
         .isEqualTo(GitResetSubCommand.builder()
             .hard(true)
             .commit("commit")

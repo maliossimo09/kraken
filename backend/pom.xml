@@ -37,6 +37,7 @@
         <jgit.version>5.8.1.202007141445-r</jgit.version>
         <jsch.version>0.1.55</jsch.version>
         <picocli.version>4.5.1</picocli.version>
+        <plexus.version>3.3.0</plexus.version>
     </properties>
 
     <modules>
@@ -73,7 +74,11 @@
                 <artifactId>org.eclipse.jgit.pgm</artifactId>
                 <version>${jgit.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
