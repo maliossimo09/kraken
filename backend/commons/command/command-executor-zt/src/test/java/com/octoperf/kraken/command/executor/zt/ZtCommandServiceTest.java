@@ -40,6 +40,55 @@ public class ZtCommandServiceTest {
   CommandService service;
 
   @Test
+  public void shouldFailWrongArgsPipe() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("ls", "|", "grep", "docker"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.execute(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+  @Test
+  public void shouldFailWrongArgsChev() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("ls", ">", "grep", "docker"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.execute(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+
+  @Test
+  public void shouldFailWrongArgsAnd() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("ls", "&&", "grep", "docker"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.execute(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+  @Test
+  public void shouldFailWrongArgsDots() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("ls", "../"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.execute(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+  @Test
   public void shouldEchoEnvData() {
     final var command = Command.builder()
         .path(".")

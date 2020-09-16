@@ -1,5 +1,6 @@
 package com.octoperf.kraken.command.executor.zt;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.command.executor.api.CommandService;
@@ -8,14 +9,18 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.springframework.stereotype.Component;
 import org.zeroturnaround.exec.InvalidExitValueException;
 import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.UnaryOperator;
@@ -36,7 +41,7 @@ final class ZtCommandService implements CommandService {
       log.debug(String.format("Executing command %s in path %s", String.join(" ", command.getArgs()), command.getPath()));
       final var file = Paths.get(command.getPath()).toFile();
       final var errors = ImmutableList.<String>builder();
-//      final var args = command.getArgs().stream().map(arg -> ESAPI.encoder().encodeForOS(new UnixCodec(), arg)).collect(Collectors.toUnmodifiableList());
+      command.getArgs().forEach(this::checkArg);
       final var process = new ProcessExecutor()
           .exitValueNormal()
           .command(command.getArgs())
@@ -65,4 +70,15 @@ final class ZtCommandService implements CommandService {
         .map(stringCleaner);
   }
 
+  @Override
+  public Mono<List<String>> parseCommandLine(final String commandLine) {
+    return Mono.fromCallable(() -> CommandLineUtils.translateCommandline(commandLine)).map(Arrays::asList);
+  }
+
+  private void checkArg(final String arg){
+    Preconditions.checkArgument(!arg.contains(".."), "Argument cannot contain '..'");
+    Preconditions.checkArgument(!arg.contains("&&"), "Argument cannot contain '&&'");
+    Preconditions.checkArgument(!arg.contains("|"), "Argument cannot contain '|'");
+    Preconditions.checkArgument(!arg.contains(">"), "Argument cannot contain '>'");
+  }
 }
