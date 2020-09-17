@@ -5,6 +5,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Value;
 
+/**
+ * <pre>
+ *   Line                                     Notes
+ * ------------------------------------------------------------
+ * # branch.oid <commit> | (initial)        Current commit.
+ * # branch.head <branch> | (detached)      Current branch.
+ * # branch.upstream <upstream_branch>      If upstream is set.
+ * # branch.ab +<ahead> -<behind>           If upstream is set and
+ * 					 the commit is present.
+ * ------------------------------------------------------------
+ * </pre>
+ */
 @Value
 public class GitBranchStatus {
   // # branch.oid <commit> | (initial)        Current commit.
