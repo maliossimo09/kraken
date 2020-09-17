@@ -1,6 +1,5 @@
 package com.octoperf.kraken.git.service.cmd;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.command.executor.api.CommandService;
@@ -10,6 +9,7 @@ import com.octoperf.kraken.git.event.GitStatusUpdateEvent;
 import com.octoperf.kraken.git.service.api.GitLogsService;
 import com.octoperf.kraken.git.service.api.GitService;
 import com.octoperf.kraken.security.entity.owner.Owner;
+import com.octoperf.kraken.tools.environment.KrakenEnvironmentKeys;
 import com.octoperf.kraken.tools.event.bus.EventBus;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -18,14 +18,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuples;
 
-import java.nio.file.Path;
 import java.time.Duration;
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.octoperf.kraken.security.entity.owner.OwnerType.USER;
 import static lombok.AccessLevel.PRIVATE;
 
 @Slf4j
@@ -40,6 +36,7 @@ final class CmdGitService implements GitService {
   @NonNull OwnerToPath ownerToPath;
   @NonNull CommandService commandService;
   @NonNull GitLogsService logsService;
+  @NonNull UserIdToCommandEnvironment toCommandEnvironment;
   @NonNull EventBus eventBus;
 
   @Override
@@ -49,10 +46,11 @@ final class CmdGitService implements GitService {
           checkArgument(args.size() >= 2);
           checkArgument("git".equals(args.get(0)), "Only git commands are supported.");
           final var subCommand = GitSubCommand.valueOf(args.get(1));
+          final var env = subCommand.isRemote() ? toCommandEnvironment.apply(owner.getUserId()) : ImmutableMap.<KrakenEnvironmentKeys, String>of();
           final var cmd = Command.builder()
               .args(args)
               .path(ownerToPath.apply(owner).toString())
-              .environment(ImmutableMap.of())
+              .environment(env)
               .build();
           final var logsFlux = commandService.validate(cmd)
               .flatMapMany(commandService::execute)
@@ -88,7 +86,4 @@ final class CmdGitService implements GitService {
         .flatMap(window -> window.reduce((event1, event2) -> event2));
   }
 
-  private Path userIdToPath(final String userId) {
-    return this.ownerToPath.apply(Owner.builder().userId(userId).type(USER).build()).resolve(".ssh");
-  }
 }

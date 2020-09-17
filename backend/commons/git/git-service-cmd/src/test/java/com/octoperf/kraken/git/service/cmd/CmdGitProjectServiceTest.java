@@ -35,6 +35,8 @@ class CmdGitProjectServiceTest {
   CommandService commandService;
   @Mock
   ApplicationProperties properties;
+  @Mock
+  UserIdToCommandEnvironment toCommandEnvironment;
   @Captor
   ArgumentCaptor<Command> commandCaptor;
 
@@ -42,7 +44,7 @@ class CmdGitProjectServiceTest {
 
   @BeforeEach
   public void beforeEach() {
-    projectService = new CmdGitProjectService(ownerToPath, commandService, properties);
+    projectService = new CmdGitProjectService(ownerToPath, commandService, properties, toCommandEnvironment);
   }
 
   @Test

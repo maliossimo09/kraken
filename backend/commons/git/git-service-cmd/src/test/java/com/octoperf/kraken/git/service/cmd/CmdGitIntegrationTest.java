@@ -106,10 +106,19 @@ public class CmdGitIntegrationTest {
 
   @Test
   void shouldDisplayStatus() throws Exception {
-    // TODO remote command
     final var logs = new ArrayList<GitCommandLog>();
     logsService.listen(OWNER).subscribe(logs::add);
     gitService.execute(OWNER, "git status").block();
+    Thread.sleep(5000);
+    Assertions.assertThat(logs).isNotEmpty();
+    System.out.println(logs);
+  }
+
+  @Test
+  void shouldPull() throws Exception {
+    final var logs = new ArrayList<GitCommandLog>();
+    logsService.listen(OWNER).subscribe(logs::add);
+    gitService.execute(OWNER, "git pull").block();
     Thread.sleep(5000);
     Assertions.assertThat(logs).isNotEmpty();
     System.out.println(logs);

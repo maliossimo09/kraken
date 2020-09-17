@@ -73,7 +73,7 @@ public class DockerTaskServiceTest {
     final var context = ExecutionContextTest.EXECUTION_CONTEXT;
     final var logs = Flux.just("logs");
     given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(any())).willReturn(logs);
+    given(commandService.execute(any(Command.class))).willReturn(logs);
     given(logsService.push(eq(context.getOwner()), eq(context.getTaskId()), eq(LogType.TASK), any()))
         .willAnswer(invocation -> invocation.getArgument(3, Flux.class).subscribe());
 
@@ -125,7 +125,7 @@ public class DockerTaskServiceTest {
     final var context = CancelContextTest.CANCEL_CONTEXT;
     final var logs = Flux.just("logs");
     given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(any())).willReturn(logs);
+    given(commandService.execute(any(Command.class))).willReturn(logs);
     assertThat(service.cancel(context).block()).isEqualTo(context);
     verify(commandService).execute(commandCaptor.capture());
 
@@ -138,7 +138,7 @@ public class DockerTaskServiceTest {
     final var context = CancelContextTest.CANCEL_CONTEXT;
     final var logs = Flux.just("logs");
     given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(any())).willReturn(logs);
+    given(commandService.execute(any(Command.class))).willReturn(logs);
     assertThat(service.remove(context).block()).isEqualTo(context);
     verify(commandService).execute(commandCaptor.capture());
 

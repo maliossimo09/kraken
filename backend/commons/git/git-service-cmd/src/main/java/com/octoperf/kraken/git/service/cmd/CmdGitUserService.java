@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
 
 import static com.octoperf.kraken.security.entity.owner.OwnerType.USER;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -29,7 +28,8 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class CmdGitUserService implements GitUserService {
 
-  private static final String ID_RSA = "id_rsa";
+  public static final String DOT_SSH = ".ssh";
+  public static final String ID_RSA = "id_rsa";
   private static final String ID_RSA_PUB = "id_rsa.pub";
 
   @NonNull OwnerToPath ownerToPath;
@@ -76,6 +76,6 @@ final class CmdGitUserService implements GitUserService {
   }
 
   private Path userIdToPath(final String userId) {
-    return this.ownerToPath.apply(Owner.builder().userId(userId).type(USER).build()).resolve(".ssh");
+    return this.ownerToPath.apply(Owner.builder().userId(userId).type(USER).build()).resolve(DOT_SSH);
   }
 }

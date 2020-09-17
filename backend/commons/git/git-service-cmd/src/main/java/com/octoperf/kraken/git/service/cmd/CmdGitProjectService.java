@@ -34,31 +34,36 @@ final class CmdGitProjectService implements GitProjectService {
   @NonNull OwnerToPath ownerToPath;
   @NonNull CommandService commandService;
   @NonNull ApplicationProperties properties;
+  @NonNull UserIdToCommandEnvironment toCommandEnvironment;
 
   @Override
   public Mono<GitConfiguration> connect(final Owner owner, final String repositoryUrl) {
     final var rootPath = ownerToPath.apply(owner);
-
     return Mono.fromCallable(() -> Files.createTempDirectory(Paths.get(properties.getData()), "git-tmp-" + owner.getUserId()))
         .flatMap(tmp -> {
+              final var env = toCommandEnvironment.apply(owner.getUserId());
               final var commands = ImmutableList.of(
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "init")).build(),
                   // Download symlinks as simple text files
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "config", "core.symlinks", "false")).build(),
+                  // TODO GIT config name / email
+//                  $ git config user.name "activehacker"
+//                  $ git config user.email "jexlab@gmail.com"
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "remote", "add", "origin", repositoryUrl)).build(),
-                  Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "pull", "origin", "master")).build(),
+                  Command.builder().path(tmp.toString()).environment(env).args(ImmutableList.of("git", "pull", "origin", "master")).build(),
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "branch", "--set-upstream-to=origin/master", "master")).build()
               );
               return commandService.validate(commands)
                   .flatMapMany(commandService::execute)
                   .collectList()
-                  .map(strings -> tmp);
-
+                  .map(logs -> {
+                    logs.forEach(log::info);
+                    return tmp;
+                  });
             }
         )
         .flatMap(tmp -> Mono.fromCallable(() -> {
           // Copy the cloned repo to the application and remove the tmp folder
-          // TODO DO NOT FOLLOW SYMLINKS
           FileSystemUtils.copyRecursively(tmp, rootPath);
           FileSystemUtils.deleteRecursively(tmp);
           return null;
