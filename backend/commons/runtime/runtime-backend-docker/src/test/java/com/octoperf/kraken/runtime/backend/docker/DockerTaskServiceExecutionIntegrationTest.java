@@ -10,7 +10,7 @@ import com.octoperf.kraken.runtime.context.entity.ExecutionContext;
 import com.octoperf.kraken.runtime.entity.log.Log;
 import com.octoperf.kraken.runtime.entity.task.ContainerStatus;
 import com.octoperf.kraken.runtime.entity.task.TaskType;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
 import com.octoperf.kraken.tests.utils.ResourceUtils;
@@ -40,7 +40,7 @@ public class DockerTaskServiceExecutionIntegrationTest {
   @Autowired
   DockerTaskService taskService;
   @Autowired
-  LogsService logsService;
+  TaskLogsService logsService;
   @Autowired
   CommandService commandService;
 

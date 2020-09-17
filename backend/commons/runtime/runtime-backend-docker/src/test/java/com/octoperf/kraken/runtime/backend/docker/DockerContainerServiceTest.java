@@ -6,7 +6,7 @@ import com.octoperf.kraken.command.executor.api.CommandService;
 import com.octoperf.kraken.runtime.entity.log.LogType;
 import com.octoperf.kraken.runtime.entity.task.ContainerStatus;
 import com.octoperf.kraken.runtime.entity.task.FlatContainerTest;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -29,7 +30,7 @@ public class DockerContainerServiceTest {
   @Mock
   CommandService commandService;
   @Mock
-  LogsService logsService;
+  TaskLogsService logsService;
   @Mock
   BiFunction<String, ContainerStatus, String> containerStatusToName;
   @Mock
@@ -61,6 +62,7 @@ public class DockerContainerServiceTest {
     given(containerStatusToName.apply(containerName, status)).willReturn(containerName);
     given(findService.find(Owner.PUBLIC, taskId, containerName)).willReturn(Mono.just(FlatContainerTest.CONTAINER));
     final var renamed = Flux.just("renamed");
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(renameCommand)).willReturn(renamed);
 
     service.setStatus(Owner.PUBLIC, taskId, containerId, containerName, status).block();
@@ -84,6 +86,7 @@ public class DockerContainerServiceTest {
         .build();
     final var logs = Flux.just("logs");
     final var id = "taskId-containerId-containerName";
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(logsCommand)).willReturn(logs);
     given(findService.find(Owner.PUBLIC, taskId, containerName)).willReturn(Mono.just(FlatContainerTest.CONTAINER));
     assertThat(service.attachLogs(Owner.PUBLIC, taskId, containerId, containerName).block()).isEqualTo(id);

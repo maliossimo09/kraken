@@ -46,7 +46,8 @@ final class DockerContainerFindService implements ContainerFindService {
         .environment(ImmutableMap.of())
         .build();
 
-    return commandService.execute(command)
+    return commandService.validate(command)
+        .flatMapMany(commandService::execute)
         .map(stringToFlatContainer)
         .next();
   }

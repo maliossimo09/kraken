@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.runtime.backend.api.TaskListService;
 import com.octoperf.kraken.runtime.client.api.RuntimeClient;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClientBuildOrder;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ public class SpringRuntimeClientTest {
   private RuntimeClient client;
 
   @MockBean
-  LogsService logsService;
+  TaskLogsService logsService;
   @MockBean
   TaskListService taskListService;
 

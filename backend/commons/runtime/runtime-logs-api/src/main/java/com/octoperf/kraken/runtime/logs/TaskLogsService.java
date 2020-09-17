@@ -6,7 +6,7 @@ import com.octoperf.kraken.security.entity.owner.Owner;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
-public interface LogsService {
+public interface TaskLogsService {
 
   Flux<Log> listen(Owner owner);
 

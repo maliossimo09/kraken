@@ -16,15 +16,20 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Slf4j
 @Component
@@ -41,7 +46,6 @@ final class ZtCommandService implements CommandService {
       log.debug(String.format("Executing command %s in path %s", String.join(" ", command.getArgs()), command.getPath()));
       final var file = Paths.get(command.getPath()).toFile();
       final var errors = ImmutableList.<String>builder();
-      command.getArgs().forEach(this::checkArg);
       final var process = new ProcessExecutor()
           .exitValueNormal()
           .command(command.getArgs())
@@ -75,10 +79,19 @@ final class ZtCommandService implements CommandService {
     return Mono.fromCallable(() -> CommandLineUtils.translateCommandline(commandLine)).map(Arrays::asList);
   }
 
-  private void checkArg(final String arg){
-    Preconditions.checkArgument(!arg.contains(".."), "Argument cannot contain '..'");
-    Preconditions.checkArgument(!arg.contains("&&"), "Argument cannot contain '&&'");
-    Preconditions.checkArgument(!arg.contains("|"), "Argument cannot contain '|'");
-    Preconditions.checkArgument(!arg.contains(">"), "Argument cannot contain '>'");
+  @Override
+  public Mono<Command> validate(Command command) {
+    return Mono.fromCallable(() -> {
+      command.getArgs().forEach(this::checkArg);
+      return command;
+    });
+  }
+
+  private void checkArg(final String arg) {
+    checkArgument(!arg.contains(".."), "Argument cannot contain '..'");
+    checkArgument(!arg.contains("&&"), "Argument cannot contain '&&'");
+    checkArgument(!arg.contains("|"), "Argument cannot contain '|'");
+    checkArgument(!arg.contains(">"), "Argument cannot contain '>'");
+    checkArgument(!arg.startsWith("/"), "Argument cannot start with '/'");
   }
 }

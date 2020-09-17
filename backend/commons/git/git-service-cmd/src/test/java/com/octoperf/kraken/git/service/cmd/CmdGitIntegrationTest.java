@@ -2,11 +2,11 @@ package com.octoperf.kraken.git.service.cmd;
 
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
+import com.octoperf.kraken.git.command.GitCommandLog;
 import com.octoperf.kraken.git.command.GitFetchSubCommand;
 import com.octoperf.kraken.git.entity.GitConfiguration;
-import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
-import com.octoperf.kraken.git.service.api.GitProjectService;
-import com.octoperf.kraken.git.service.api.GitUserService;
+import com.octoperf.kraken.git.entity.GitLog;
+import com.octoperf.kraken.git.service.api.*;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
@@ -27,6 +27,7 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -35,7 +36,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
 @Tag("integration")
-public class CmdGitProjectServiceIntegrationTest {
+public class CmdGitIntegrationTest {
 
   private static final String USER_ID = "userId";
   private static final String APP_ID = "app";
@@ -53,6 +54,12 @@ public class CmdGitProjectServiceIntegrationTest {
 
   @Autowired
   GitProjectService gitProjectService;
+
+  @Autowired
+  GitService gitService;
+
+  @Autowired
+  GitLogsService logsService;
 
   @MockBean
   ApplicationProperties properties;
@@ -95,6 +102,17 @@ public class CmdGitProjectServiceIntegrationTest {
         .expectNext(GitConfiguration.builder().repositoryUrl(REPO_URL).build())
         .expectComplete()
         .verify();
+  }
+
+  @Test
+  void shouldDisplayStatus() throws Exception {
+    // TODO remote command
+    final var logs = new ArrayList<GitCommandLog>();
+    logsService.listen(OWNER).subscribe(logs::add);
+    gitService.execute(OWNER, "git status").block();
+    Thread.sleep(5000);
+    Assertions.assertThat(logs).isNotEmpty();
+    System.out.println(logs);
   }
 
   @Test

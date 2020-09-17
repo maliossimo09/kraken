@@ -65,6 +65,7 @@ public class GatlingParserTest extends AbstractContainerExecutorTest {
   public void shouldInit() {
     given(logParser.parse(any())).willReturn(Flux.empty());
     given(runtimeClient.waitForPredicate(FlatContainerTest.CONTAINER, taskPredicate)).willReturn(Mono.delay(Duration.ofSeconds(1)).map(aLong -> TaskTest.TASK));
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(any(Command.class))).willReturn(Flux.just("cmd", "exec", "logs"));
     final var entries = ImmutableList.builder();
     given(writer.write(any())).willReturn(Flux.interval(Duration.ofMillis(400)).map(aLong -> DebugEntryTest.DEBUG_ENTRY).doOnNext(entries::add));

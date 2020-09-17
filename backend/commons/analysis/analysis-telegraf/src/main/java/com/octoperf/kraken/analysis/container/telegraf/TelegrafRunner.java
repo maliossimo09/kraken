@@ -47,15 +47,15 @@ final class TelegrafRunner {
       // Download configuration file
       storageClientMono.flatMap(client -> client.downloadFile(get(telegraf.getLocal()), telegraf.getRemote())).block();
       // Mandatory or the file is empty
-      final var displayTelegrafConf = commands.execute(Command.builder()
+      final var displayTelegrafConf = commands.validate(Command.builder()
           .path("/etc/telegraf")
           .environment(ImmutableMap.of())
           .args(ImmutableList.of("cat", "telegraf.conf"))
-          .build());
+          .build()).flatMapMany(commands::execute);
       Optional.ofNullable(displayTelegrafConf.collectList()
           .block()).orElse(emptyList()).forEach(log::info);
     }), (runtimeClient, me) -> {
-      final var startTelegraf = commands.execute(newCommand.get());
+      final var startTelegraf = commands.validate(newCommand.get()).flatMapMany(commands::execute);
       waitFor(startTelegraf
           .doOnNext(log::info), runtimeClient.waitForPredicate(me, tasks), ofSeconds(5));
     }, empty());

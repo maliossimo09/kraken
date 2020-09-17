@@ -48,11 +48,11 @@ final class HarParserService {
       // Download HAR
       storageClientMono.flatMap(storage -> storage.downloadFile(localFolderPath, harParser.getRemote())).block();
       // List files
-      final var listFiles = commands.execute(Command.builder()
+      final var listFiles = commands.validate(Command.builder()
           .path(application.getData())
           .args(ImmutableList.of("ls", "-lR"))
           .environment(ImmutableMap.of())
-          .build());
+          .build()).flatMapMany(commands::execute);
       Optional.ofNullable(listFiles
           .collectList()
           .block()).orElse(Collections.emptyList()).forEach(log::info);

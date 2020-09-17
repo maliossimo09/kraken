@@ -20,6 +20,9 @@ import java.util.concurrent.ConcurrentMap;
 @FieldDefaults(level = AccessLevel.PROTECTED, makeFinal = true)
 public abstract class AbstractLogService<L extends Owned> {
   private static final Duration INTERVAL = Duration.ofMillis(100);
+  private static final int MAX_LOGS_SIZE = 500;
+  private static final Duration MAX_LOGS_TIMEOUT = Duration.ofMillis(1000);
+  private static final String LINE_SEP = "\r\n";
 
   ConcurrentLinkedQueue<L> logs = new ConcurrentLinkedQueue<>();
   ConcurrentMap<Owner, FluxSink<L>> listeners = new ConcurrentHashMap<>();
@@ -57,5 +60,10 @@ public abstract class AbstractLogService<L extends Owned> {
   public void clear() {
     logs.clear();
     listeners.clear();
+  }
+
+  protected Flux<String> concat(final Flux<String> flux) {
+    return flux.windowTimeout(MAX_LOGS_SIZE, MAX_LOGS_TIMEOUT)
+        .flatMap(window -> window.reduce((o, o2) -> o + LINE_SEP + o2));
   }
 }

@@ -8,7 +8,7 @@ import com.octoperf.kraken.command.executor.api.CommandService;
 import com.octoperf.kraken.runtime.entity.log.Log;
 import com.octoperf.kraken.runtime.entity.task.ContainerStatus;
 import com.octoperf.kraken.runtime.entity.task.FlatContainer;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.security.entity.owner.OwnerType;
 import org.junit.jupiter.api.AfterEach;
@@ -37,7 +37,7 @@ public class DockerContainerServiceIntegrationTest {
   DockerContainerService containerService;
 
   @Autowired
-  LogsService logsService;
+  TaskLogsService logsService;
 
   @Autowired
   CommandService commandService;

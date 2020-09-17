@@ -59,6 +59,7 @@ public class HarParserServiceTest extends AbstractContainerExecutorTest {
     given(harParser.parse(any())).willReturn(Flux.empty());
     given(storageClient.downloadFile(any(Path.class), any())).willReturn(Mono.fromCallable(() -> null));
     given(writer.write(any())).willReturn(Flux.just(DebugEntryTest.DEBUG_ENTRY, DebugEntryTest.DEBUG_ENTRY, DebugEntryTest.DEBUG_ENTRY));
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(any(Command.class))).willReturn(Flux.just("cmd", "exec", "logs"));
     given(harParserProperties.getLocal()).willReturn("localHarPath");
     given(harParserProperties.getRemote()).willReturn("remoteHarPath");

@@ -50,11 +50,11 @@ final class GatlingRecorder {
       // Download HAR
       storageClientMono.flatMap(storage -> storage.downloadFile(Paths.get(gatling.getHarPath().getLocal()), gatling.getHarPath().getRemote())).block();
       // List files
-      final var listFiles = commands.execute(Command.builder()
+      final var listFiles = commands.validate(Command.builder()
           .path(gatling.getHome())
           .args(ImmutableList.of("ls", "-lR"))
           .environment(ImmutableMap.of())
-          .build());
+          .build()).flatMapMany(commands::execute);
       Optional.ofNullable(listFiles
           .collectList()
           .block()).orElse(Collections.emptyList()).forEach(log::info);

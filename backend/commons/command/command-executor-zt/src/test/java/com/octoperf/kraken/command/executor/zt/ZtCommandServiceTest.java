@@ -40,35 +40,47 @@ public class ZtCommandServiceTest {
   CommandService service;
 
   @Test
-  public void shouldFailWrongArgsPipe() {
+  public void shouldValidatePipe() {
     final var command = Command.builder()
         .path(".")
         .args(Arrays.asList("ls", "|", "grep", "docker"))
         .environment(ImmutableMap.of())
         .build();
-    StepVerifier.create(service.execute(command))
+    StepVerifier.create(service.validate(command))
         .expectError(IllegalArgumentException.class)
         .verify();
   }
 
   @Test
-  public void shouldFailWrongArgsChev() {
+  public void shouldValidateChev() {
     final var command = Command.builder()
         .path(".")
         .args(Arrays.asList("ls", ">", "grep", "docker"))
         .environment(ImmutableMap.of())
         .build();
-    StepVerifier.create(service.execute(command))
+    StepVerifier.create(service.validate(command))
         .expectError(IllegalArgumentException.class)
         .verify();
   }
 
 
   @Test
-  public void shouldFailWrongArgsAnd() {
+  public void shouldValidateAnd() {
     final var command = Command.builder()
         .path(".")
         .args(Arrays.asList("ls", "&&", "grep", "docker"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.validate(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+  @Test
+  public void shouldValidateDots() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("ls", "../"))
         .environment(ImmutableMap.of())
         .build();
     StepVerifier.create(service.execute(command))
@@ -77,10 +89,22 @@ public class ZtCommandServiceTest {
   }
 
   @Test
-  public void shouldFailWrongArgsDots() {
+  public void shouldValidateRoot() {
     final var command = Command.builder()
         .path(".")
-        .args(Arrays.asList("ls", "../"))
+        .args(Arrays.asList("ls", "/"))
+        .environment(ImmutableMap.of())
+        .build();
+    StepVerifier.create(service.execute(command))
+        .expectError(IllegalArgumentException.class)
+        .verify();
+  }
+
+  @Test
+  public void shouldValidateBin() {
+    final var command = Command.builder()
+        .path(".")
+        .args(Arrays.asList("/bin/sh", "-c"))
         .environment(ImmutableMap.of())
         .build();
     StepVerifier.create(service.execute(command))
@@ -260,4 +284,5 @@ public class ZtCommandServiceTest {
 
     assertThat(logs).contains("kraken");
   }
+
 }

@@ -18,13 +18,13 @@ import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("squid:S2925")
-public class SpringLogsServiceTest {
+public class SpringTaskLogsServiceTest {
 
-  SpringLogsService service;
+  SpringTaskLogsService service;
 
   @BeforeEach
   public void before() {
-    service = new SpringLogsService();
+    service = new SpringTaskLogsService();
     service.init();
   }
 

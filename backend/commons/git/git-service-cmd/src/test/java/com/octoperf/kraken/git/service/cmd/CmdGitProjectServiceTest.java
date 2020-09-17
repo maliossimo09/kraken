@@ -15,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.nio.file.Paths;
 
@@ -46,6 +47,7 @@ class CmdGitProjectServiceTest {
     final var repositoryUrl = "repoUrl";
     final var rootPath = Paths.get("testDir");
     given(ownerToPath.apply(owner)).willReturn(rootPath);
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(any())).willReturn(Flux.just(repositoryUrl));
 
     final var config = projectService.connect(owner, repositoryUrl).block();

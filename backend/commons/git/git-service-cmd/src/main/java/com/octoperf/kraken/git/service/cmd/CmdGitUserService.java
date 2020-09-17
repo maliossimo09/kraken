@@ -57,11 +57,13 @@ final class CmdGitUserService implements GitUserService {
             throw new IllegalStateException("Failed to create .ssh folder");
           }
           return null;
-        }).thenMany(commandService.execute(Command.builder()
-            .args(ImmutableList.of("ssh-keygen", "-q", "-N", "''", "-t", "rsa", "-b", "4096", "-C", String.format("\"%s\"", userId), "-f", path.resolve(ID_RSA).toString()))
-            .path(".")
-            .environment(ImmutableMap.of())
-            .build()))
+        })
+            .then(commandService.validate(Command.builder()
+                .args(ImmutableList.of("ssh-keygen", "-q", "-N", "''", "-t", "rsa", "-b", "4096", "-C", String.format("\"%s\"", userId), "-f", path.resolve(ID_RSA).toString()))
+                .path(".")
+                .environment(ImmutableMap.of())
+                .build()))
+            .flatMapMany(commandService::execute)
             .then(this.getCredentials(userId));
   }
 

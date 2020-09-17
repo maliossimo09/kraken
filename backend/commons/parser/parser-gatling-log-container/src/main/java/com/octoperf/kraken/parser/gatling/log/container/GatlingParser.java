@@ -43,11 +43,11 @@ final class GatlingParser {
   public void init() {
     executor.execute(empty(), (runtimeClient, me) -> {
       // List files
-      final var listFiles = commandService.execute(Command.builder()
+      final var listFiles = commandService.validate(Command.builder()
           .path(Paths.get(gatling.getHome()).toString())
           .args(ImmutableList.of("ls", "-lR"))
           .environment(ImmutableMap.of())
-          .build());
+          .build()).flatMapMany(commandService::execute);
       Optional.ofNullable(listFiles
           .collectList()
           .block()).orElse(Collections.emptyList()).forEach(log::info);

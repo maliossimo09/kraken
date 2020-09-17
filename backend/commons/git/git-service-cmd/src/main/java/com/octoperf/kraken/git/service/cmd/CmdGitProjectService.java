@@ -38,11 +38,12 @@ final class CmdGitProjectService implements GitProjectService {
     final var rootPath = ownerToPath.apply(owner);
 
     return Mono.fromCallable(() -> Files.createTempDirectory(owner.getUserId()))
-        .flatMap(tmp -> commandService.execute(Command.builder()
+        .flatMap(tmp -> commandService.validate(Command.builder()
             .path(rootPath.toString())
             .environment(ImmutableMap.of())
             .args(ImmutableList.of("git", "clone", repositoryUrl, tmp.toString()))
             .build())
+            .flatMapMany(commandService::execute)
             .collectList()
             .map(strings -> tmp))
         .flatMap(tmp -> Mono.fromCallable(() -> {
@@ -57,11 +58,12 @@ final class CmdGitProjectService implements GitProjectService {
   @Override
   public Mono<GitConfiguration> getConfiguration(final Owner owner) {
     final var rootPath = ownerToPath.apply(owner);
-    return commandService.execute(Command.builder()
+    return commandService.validate(Command.builder()
         .path(rootPath.toString())
         .environment(ImmutableMap.of())
         .args(ImmutableList.of("git", "config", "--get", "remote.origin.url"))
         .build())
+        .flatMapMany(commandService::execute)
         .next()
         .map(url -> GitConfiguration.builder().repositoryUrl(url).build());
   }

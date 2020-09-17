@@ -56,11 +56,11 @@ final class GatlingRunner {
           storage.downloadFolder(Paths.get(gatling.getLib().getLocal()), gatling.getLib().getRemote())).block();
 
       // List files
-      final var listFiles = commands.execute(Command.builder()
+      final var listFiles = commands.validate(Command.builder()
           .path(gatling.getHome())
           .args(ImmutableList.of("ls", "-lR"))
           .environment(ImmutableMap.of())
-          .build());
+          .build()).flatMapMany(commands::execute);
       Optional.ofNullable(listFiles
           .collectList()
           .block()).orElse(Collections.emptyList())

@@ -61,6 +61,7 @@ public class TelegrafRunnerTest extends AbstractContainerExecutorTest {
   @Test
   public void shouldInit() {
     final var entries = ImmutableList.builder();
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(any(Command.class))).willReturn(Flux.just("conf", "content"));
     given(commandService.execute(CommandTest.SHELL_COMMAND)).willReturn(Flux.interval(Duration.ofMillis(400)).map(Object::toString).doOnNext(entries::add));
     given(runtimeClient.waitForPredicate(FlatContainerTest.CONTAINER, taskPredicate)).willReturn(Mono.delay(Duration.ofSeconds(1)).map(aLong -> TaskTest.TASK));

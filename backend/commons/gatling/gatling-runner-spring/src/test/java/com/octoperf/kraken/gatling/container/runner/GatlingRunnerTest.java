@@ -63,6 +63,7 @@ public class GatlingRunnerTest extends AbstractContainerExecutorTest {
   public void shouldInit() {
     given(storageClient.downloadFolder(any(Path.class), any())).willReturn(Mono.fromCallable(() -> null));
     given(storageClient.uploadFile(any(Path.class), any())).willReturn(Flux.just(StorageWatcherEventTest.STORAGE_WATCHER_EVENT));
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
     given(commandService.execute(any(Command.class))).willReturn(Flux.just("cmd", "exec", "logs"));
     runner.init();
     verify(storageClient, times(3)).downloadFolder(any(Path.class), any());

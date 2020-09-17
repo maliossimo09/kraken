@@ -6,7 +6,7 @@ import com.octoperf.kraken.runtime.entity.log.Log;
 import com.octoperf.kraken.runtime.entity.task.ContainerStatus;
 import com.octoperf.kraken.runtime.entity.task.FlatContainer;
 import com.octoperf.kraken.runtime.entity.task.Task;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 final class SpringRuntimeClient implements RuntimeClient {
 
   @NonNull Owner owner;
-  @NonNull LogsService logsService;
+  @NonNull TaskLogsService logsService;
   @NonNull TaskListService taskListService;
 
   @Override

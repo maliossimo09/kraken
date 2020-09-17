@@ -3,7 +3,7 @@ package com.octoperf.kraken.runtime.client.spring;
 import com.octoperf.kraken.runtime.backend.api.TaskListService;
 import com.octoperf.kraken.runtime.client.api.RuntimeClient;
 import com.octoperf.kraken.runtime.client.api.RuntimeClientBuilder;
-import com.octoperf.kraken.runtime.logs.LogsService;
+import com.octoperf.kraken.runtime.logs.TaskLogsService;
 import com.octoperf.kraken.security.authentication.api.UserProviderFactory;
 import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClientBuildOrder;
 import com.octoperf.kraken.security.authentication.client.spring.SpringAuthenticatedClientBuilder;
@@ -20,11 +20,11 @@ import static lombok.AccessLevel.PRIVATE;
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class SpringRuntimeClientBuilder extends SpringAuthenticatedClientBuilder<RuntimeClient> implements RuntimeClientBuilder {
 
-  LogsService logsService;
+  TaskLogsService logsService;
   TaskListService taskListService;
 
   public SpringRuntimeClientBuilder(final List<UserProviderFactory> userProviderFactories,
-                                    @NonNull LogsService logsService,
+                                    @NonNull TaskLogsService logsService,
                                     @NonNull TaskListService taskListService) {
     super(userProviderFactories);
     this.logsService = logsService;
