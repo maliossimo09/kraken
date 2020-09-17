@@ -1,5 +1,7 @@
 package com.octoperf.kraken.git.service.cmd.parser;
 
+import com.google.common.collect.ImmutableList;
+import com.octoperf.kraken.git.entity.GitBranchStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,17 +13,26 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static com.google.common.collect.ImmutableList.of;
+
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-final class SpringGitStatusParser implements GitStatusParser{
+final class SpringGitStatusParser implements GitStatusParser {
 
   @NonNull Map<Character, GitStatusLineParser> parsers;
 
   @Override
   public Mono<GitStatus> apply(Flux<String> stringFlux) {
-    stringFlux.map(line -> line.split("\\s+"));
-    // TODO reduce using parsers
-    return null;
+    final var status = GitStatus.builder()
+        .branch(GitBranchStatus.builder().build())
+        .untracked(of())
+        .ignored(of())
+        .renamedCopied(of())
+        .unmerged(of())
+        .changed(of())
+        .build();
+    return stringFlux.map(line -> line.split("\\s+"))
+        .reduce(status, (current, strings) -> parsers.get(strings[0].charAt(0)).apply(current, strings));
   }
 }
