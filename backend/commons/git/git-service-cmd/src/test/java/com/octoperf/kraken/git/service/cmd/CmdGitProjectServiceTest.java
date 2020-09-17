@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.command.executor.api.CommandService;
+import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import org.assertj.core.api.Assertions;
@@ -20,6 +21,7 @@ import reactor.core.publisher.Mono;
 import java.nio.file.Paths;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,6 +33,8 @@ class CmdGitProjectServiceTest {
   OwnerToPath ownerToPath;
   @Mock
   CommandService commandService;
+  @Mock
+  ApplicationProperties properties;
   @Captor
   ArgumentCaptor<Command> commandCaptor;
 
@@ -38,7 +42,7 @@ class CmdGitProjectServiceTest {
 
   @BeforeEach
   public void beforeEach() {
-    projectService = new CmdGitProjectService(ownerToPath, commandService);
+    projectService = new CmdGitProjectService(ownerToPath, commandService, properties);
   }
 
   @Test
@@ -48,7 +52,7 @@ class CmdGitProjectServiceTest {
     final var rootPath = Paths.get("testDir");
     given(ownerToPath.apply(owner)).willReturn(rootPath);
     given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(any())).willReturn(Flux.just(repositoryUrl));
+    given(commandService.execute(anyList())).willReturn(Flux.just(repositoryUrl));
 
     final var config = projectService.connect(owner, repositoryUrl).block();
     Assertions.assertThat(config)

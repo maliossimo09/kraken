@@ -370,6 +370,31 @@ public class FileSystemStorageServiceIntegrationTest {
     checkEvents(events);
   }
 
+  @Test
+  public void shouldExtractGitZip() {
+    final var events = ImmutableList.of(
+        StorageWatcherEvent.builder().node(StorageNode.builder().path("zipDir/_git").type(DIRECTORY).depth(1).length(4096L).lastModified(1596199830536L).build()).type(CREATE).owner(Owner.PUBLIC).build(),
+        StorageWatcherEvent.builder().node(StorageNode.builder().path("zipDir/_git/config").type(FILE).depth(2).length(287L).lastModified(1596199830540L).build()).type(CREATE).owner(Owner.PUBLIC).build(),
+        StorageWatcherEvent.builder().node(StorageNode.builder().path("zipDir/_git/config").type(FILE).depth(2).length(287L).lastModified(0L).build()).type(DELETE).owner(Owner.PUBLIC).build(),
+        StorageWatcherEvent.builder().node(StorageNode.builder().path("zipDir/_git").type(DIRECTORY).depth(1).length(4096L).lastModified(0L).build()).type(DELETE).owner(Owner.PUBLIC).build()
+    );
+    final var path = "zipDir/git.zip";
+
+    checkResult(service.extractZip(path), events.subList(0, 2));
+
+    final var files = service.find("zipDir/_git", 1, ".*").map(StorageNode::getPath).collect(Collectors.toList()).block();
+    assertThat(files).isNotNull();
+    System.out.println(files);
+    assertThat(files.size()).isEqualTo(1);
+
+    create(service.delete(Collections.singletonList("zipDir/_git")))
+        .expectNextCount(2)
+        .expectComplete()
+        .verify();
+
+    checkEvents(events);
+
+  }
 
   @Test
   public void shouldSetRootFileFailRelativePath() {

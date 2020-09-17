@@ -42,26 +42,24 @@ final class ZtCommandService implements CommandService {
 
   @Override
   public Flux<String> execute(final Command command) {
+    return this.execute(ImmutableList.of(command));
+  }
+
+  @Override
+  public Flux<String> execute(List<Command> commands) {
     return Flux.<String>create(emitter -> {
-      log.debug(String.format("Executing command %s in path %s", String.join(" ", command.getArgs()), command.getPath()));
-      final var file = Paths.get(command.getPath()).toFile();
       final var errors = ImmutableList.<String>builder();
-      final var process = new ProcessExecutor()
-          .exitValueNormal()
-          .command(command.getArgs())
-          .directory(file)
-          .environment(command.getEnvironment().entrySet().stream()
-              .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue)))
-          .redirectErrorStream(true)
-          .redirectOutput(new LogOutputStream() {
-            @Override
-            protected void processLine(final String line) {
-              errors.add(line);
-              emitter.next(line);
-            }
-          });
+      final var processList = commands
+          .stream()
+          .map(command -> this.commandToProcessExecutor(command, line -> {
+            errors.add(line);
+            emitter.next(line);
+          }))
+          .collect(Collectors.toUnmodifiableList());
       try {
-        process.execute();
+        for (var process : processList) {
+          process.execute();
+        }
       } catch (InvalidExitValueException | InterruptedException | TimeoutException | IOException e) {
         log.error("Command execution failed", e);
         log.error(String.join("\n", errors.build()));
@@ -87,11 +85,38 @@ final class ZtCommandService implements CommandService {
     });
   }
 
+  @Override
+  public Mono<List<Command>> validate(List<Command> commands) {
+    return Mono.fromCallable(() -> {
+      for (Command command : commands) {
+        command.getArgs().forEach(this::checkArg);
+      }
+      return commands;
+    });
+  }
+
   private void checkArg(final String arg) {
     checkArgument(!arg.contains(".."), "Argument cannot contain '..'");
     checkArgument(!arg.contains("&&"), "Argument cannot contain '&&'");
     checkArgument(!arg.contains("|"), "Argument cannot contain '|'");
     checkArgument(!arg.contains(">"), "Argument cannot contain '>'");
     checkArgument(!arg.startsWith("/"), "Argument cannot start with '/'");
+  }
+
+  private ProcessExecutor commandToProcessExecutor(final Command command, final Consumer<String> logger) {
+    final var file = Paths.get(command.getPath()).toFile();
+    return new ProcessExecutor()
+        .exitValueNormal()
+        .command(command.getArgs())
+        .directory(file)
+        .environment(command.getEnvironment().entrySet().stream()
+            .collect(Collectors.toMap(e -> e.getKey().name(), Map.Entry::getValue)))
+        .redirectErrorStream(true)
+        .redirectOutput(new LogOutputStream() {
+          @Override
+          protected void processLine(final String line) {
+            logger.accept(line);
+          }
+        });
   }
 }

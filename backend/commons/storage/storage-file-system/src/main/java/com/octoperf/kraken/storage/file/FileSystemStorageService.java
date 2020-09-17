@@ -16,6 +16,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.util.FileSystemUtils;
+import org.zeroturnaround.zip.NameMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -47,6 +48,9 @@ import static reactor.core.publisher.Mono.fromCallable;
 @AllArgsConstructor(access = PACKAGE)
 @FieldDefaults(level = PRIVATE, makeFinal = true)
 final class FileSystemStorageService implements StorageService {
+
+  private static final String GIT_CONFIG = ".git";
+  private static final String GIT_CONFIG_REPLACEMENT = "_git";
 
   @NonNull Owner owner;
   @NonNull Path root;
@@ -84,7 +88,10 @@ final class FileSystemStorageService implements StorageService {
   @Override
   public Flux<StorageNode> list() {
     try {
-      return fromStream(Files.walk(root).map(toStorageNode)).filter(StorageNode::notRoot);
+      return fromStream(Files.walk(root)
+          .filter(this::isNotGitConfig)
+          .map(toStorageNode))
+          .filter(StorageNode::notRoot);
     } catch (Exception e) {
       return error(e);
     }
@@ -211,11 +218,12 @@ final class FileSystemStorageService implements StorageService {
   @Override
   public Flux<StorageWatcherEvent> extractZip(String path) {
     final var zipPath = this.stringToPath(path);
+    final NameMapper nameMapper = (String name) -> name.contains(GIT_CONFIG) ? name.replace(GIT_CONFIG, "_git") : name;
     return this.callOperation(sink -> {
       final var parent = zipPath.getParent();
-      unpack(zipPath.toFile(), zipPath.getParent().toFile());
+      unpack(zipPath.toFile(), zipPath.getParent().toFile(), nameMapper);
       iterate(zipPath.toFile(), (in, zipEntry) -> sink.next(StorageWatcherEvent.builder()
-          .node(toStorageNode.apply(parent.resolve(zipEntry.getName())))
+          .node(toStorageNode.apply(parent.resolve(nameMapper.map(zipEntry.getName()))))
           .type(CREATE)
           .owner(this.owner)
           .build()));
@@ -300,7 +308,9 @@ final class FileSystemStorageService implements StorageService {
           maxDepth,
           (path, basicFileAttributes) -> path.toFile().getName().matches(matcher)
       );
-      return Flux.fromStream(stream.filter(path -> !path.equals(completePath))).map(this.toStorageNode);
+      return Flux.fromStream(stream.filter(path -> !path.equals(completePath)))
+          .filter(this::isNotGitConfig)
+          .map(this.toStorageNode);
     } catch (IOException e) {
       return Flux.error(e);
     }
@@ -435,6 +445,11 @@ final class FileSystemStorageService implements StorageService {
   private Path stringToPath(final String path) throws IllegalArgumentException {
     checkArgument(!path.contains(".."), "Cannot store file with relative path outside current directory "
         + path);
+    checkArgument(!path.contains(GIT_CONFIG), "Cannot access git configuration files");
     return root.resolve(path);
+  }
+
+  private boolean isNotGitConfig(final Path path) {
+    return !path.toString().contains(GIT_CONFIG);
   }
 }
