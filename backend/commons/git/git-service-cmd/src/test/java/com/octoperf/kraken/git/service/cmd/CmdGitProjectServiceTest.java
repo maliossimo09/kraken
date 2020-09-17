@@ -6,6 +6,7 @@ import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.command.executor.api.CommandService;
 import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
+import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +38,8 @@ class CmdGitProjectServiceTest {
   ApplicationProperties properties;
   @Mock
   UserIdToCommandEnvironment toCommandEnvironment;
+  @Mock
+  UserProvider userProvider;
   @Captor
   ArgumentCaptor<Command> commandCaptor;
 
@@ -44,7 +47,7 @@ class CmdGitProjectServiceTest {
 
   @BeforeEach
   public void beforeEach() {
-    projectService = new CmdGitProjectService(ownerToPath, commandService, properties, toCommandEnvironment);
+    projectService = new CmdGitProjectService(ownerToPath, commandService, properties, toCommandEnvironment, userProvider);
   }
 
   @Test

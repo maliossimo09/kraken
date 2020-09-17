@@ -35,7 +35,6 @@ final class CmdGitUserService implements GitUserService {
   @NonNull OwnerToPath ownerToPath;
   @NonNull CommandService commandService;
 
-
   @Override
   public Mono<GitCredentials> getCredentials(String userId) {
     return Mono.fromCallable(() -> {

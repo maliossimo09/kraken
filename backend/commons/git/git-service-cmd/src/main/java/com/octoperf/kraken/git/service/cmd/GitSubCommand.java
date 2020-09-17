@@ -20,6 +20,8 @@ public enum GitSubCommand {
   push(true, true),
   rebase(true, true),
   rm(true, false),
+  log(true, true),
+  diff(true, true),
   help(false, false);
 
  boolean refresh;

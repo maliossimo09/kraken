@@ -64,6 +64,9 @@ public class CmdGitIntegrationTest {
   @MockBean
   ApplicationProperties properties;
 
+  @MockBean
+  UserProvider userProvider;
+
   Path projectPath;
   Path repoPath;
 
@@ -90,6 +93,7 @@ public class CmdGitIntegrationTest {
 
   @Test
   void shouldConnectRepo() {
+    given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER));
     StepVerifier.create(gitProjectService.connect(OWNER, REPO_URL))
         .expectNext(GitConfiguration.builder().repositoryUrl(REPO_URL).build())
         .expectComplete()
