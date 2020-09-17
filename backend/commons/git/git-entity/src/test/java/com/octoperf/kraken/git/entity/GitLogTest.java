@@ -1,19 +1,14 @@
 package com.octoperf.kraken.git.entity;
 
-import com.google.common.testing.NullPointerTester;
+import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 
 public class GitLogTest {
 
   public static final GitLog GIT_LOG = GitLog.builder()
-      .author(GitIdentityTest.GIT_IDENTITY)
-      .committer(GitIdentityTest.GIT_IDENTITY)
-      .encoding("encoding")
-      .id("id")
-      .message("message")
-      .path("path")
-      .time(42L)
+      .owner(Owner.PUBLIC)
+      .text("text")
       .build();
 
 
@@ -24,9 +19,7 @@ public class GitLogTest {
 
   @Test
   public void shouldPassNPE() {
-    new NullPointerTester()
-        .setDefault(GitIdentity.class, GitIdentityTest.GIT_IDENTITY)
-        .testConstructors(GitLog.class, NullPointerTester.Visibility.PACKAGE);
+    TestUtils.shouldPassNPE(GIT_LOG.getClass());
   }
 
   @Test

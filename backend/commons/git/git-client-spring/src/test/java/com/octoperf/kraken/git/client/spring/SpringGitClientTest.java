@@ -6,9 +6,8 @@ import com.octoperf.kraken.git.client.api.GitClient;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.entity.GitStatusTest;
 import com.octoperf.kraken.git.event.GitRefreshStorageEventTest;
-import com.octoperf.kraken.git.service.api.GitFileService;
-import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;
+import com.octoperf.kraken.git.service.api.GitService;
 import com.octoperf.kraken.security.authentication.client.api.AuthenticatedClientBuildOrder;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,14 +31,11 @@ public class SpringGitClientTest {
   @MockBean
   GitProjectService projectService;
   @MockBean
-  GitFileServiceBuilder fileServiceBuilder;
-  @MockBean
-  GitFileService fileService;
+  GitService gitService;
 
   @BeforeEach
   public void before() {
-    given(fileServiceBuilder.build(Owner.PUBLIC)).willReturn(Mono.just(fileService));
-    client = new SpringGitClientBuilder(ImmutableList.of(), projectService, fileServiceBuilder).build(AuthenticatedClientBuildOrder.NOOP).block();
+    client = new SpringGitClientBuilder(ImmutableList.of(), projectService, gitService).build(AuthenticatedClientBuildOrder.NOOP).block();
   }
 
   @Test
@@ -53,14 +49,14 @@ public class SpringGitClientTest {
 
   @Test
   public void shouldWatchStatus() {
-    given(fileService.watchStatus()).willReturn(Flux.just(GitStatusTest.GIT_STATUS));
+    given(gitService.watchStatus(Owner.PUBLIC)).willReturn(Flux.just(GitStatusTest.GIT_STATUS));
     final var response = client.watchStatus().collectList().block();
     assertThat(response).isNotNull().hasSize(1);
   }
 
   @Test
   public void shouldWatchRefresh() {
-    given(fileService.watchRefresh()).willReturn(Flux.just(GitRefreshStorageEventTest.GIT_REFRESH_STORAGE_EVENT));
+    given(gitService.watchRefresh(Owner.PUBLIC)).willReturn(Flux.just(GitRefreshStorageEventTest.GIT_REFRESH_STORAGE_EVENT));
     final var response = client.watchRefresh().collectList().block();
     assertThat(response).isNotNull().hasSize(1);
   }

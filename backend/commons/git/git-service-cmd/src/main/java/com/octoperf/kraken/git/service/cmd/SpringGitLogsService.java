@@ -1,6 +1,6 @@
 package com.octoperf.kraken.git.service.cmd;
 
-import com.octoperf.kraken.git.command.GitCommandLog;
+import com.octoperf.kraken.git.entity.GitLog;
 import com.octoperf.kraken.git.service.api.GitLogsService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import com.octoperf.kraken.tools.log.AbstractLogService;
@@ -20,13 +20,13 @@ import static lombok.AccessLevel.PRIVATE;
 @Component
 @AllArgsConstructor
 @FieldDefaults(level = PRIVATE, makeFinal = true)
-final class SpringGitLogsService extends AbstractLogService<GitCommandLog> implements GitLogsService {
+final class SpringGitLogsService extends AbstractLogService<GitLog> implements GitLogsService {
 
   private static final Duration TIMEOUT = Duration.ofMinutes(5);
 
   @Override
   public void add(Owner owner, String text) {
-    this.add(GitCommandLog.builder().owner(owner).text(text).build());
+    this.add(GitLog.builder().owner(owner).text(text).build());
   }
 
 

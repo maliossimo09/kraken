@@ -2,10 +2,8 @@ package com.octoperf.kraken.git.service.cmd;
 
 import com.octoperf.kraken.Application;
 import com.octoperf.kraken.config.api.ApplicationProperties;
-import com.octoperf.kraken.git.command.GitCommandLog;
-import com.octoperf.kraken.git.command.GitFetchSubCommand;
-import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.entity.GitLog;
+import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.service.api.*;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.Owner;
@@ -110,7 +108,7 @@ public class CmdGitIntegrationTest {
 
   @Test
   void shouldDisplayStatus() throws Exception {
-    final var logs = new ArrayList<GitCommandLog>();
+    final var logs = new ArrayList<GitLog>();
     logsService.listen(OWNER).subscribe(logs::add);
     gitService.execute(OWNER, "git status").block();
     Thread.sleep(5000);
@@ -120,7 +118,7 @@ public class CmdGitIntegrationTest {
 
   @Test
   void shouldPull() throws Exception {
-    final var logs = new ArrayList<GitCommandLog>();
+    final var logs = new ArrayList<GitLog>();
     logsService.listen(OWNER).subscribe(logs::add);
     gitService.execute(OWNER, "git pull").block();
     Thread.sleep(5000);

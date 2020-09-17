@@ -4,8 +4,8 @@ import com.octoperf.kraken.git.client.api.GitClient;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.entity.GitStatus;
 import com.octoperf.kraken.git.event.GitRefreshStorageEvent;
-import com.octoperf.kraken.git.service.api.GitFileService;
 import com.octoperf.kraken.git.service.api.GitProjectService;
+import com.octoperf.kraken.git.service.api.GitService;
 import com.octoperf.kraken.security.entity.owner.Owner;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 final class SpringGitClient implements GitClient {
 
   @NonNull GitProjectService projectService;
-  @NonNull GitFileService fileService;
+  @NonNull GitService gitService;
   @NonNull Owner owner;
 
   @Override
@@ -29,11 +29,11 @@ final class SpringGitClient implements GitClient {
 
   @Override
   public Flux<GitStatus> watchStatus() {
-    return this.fileService.watchStatus();
+    return this.gitService.watchStatus(owner);
   }
 
   @Override
   public Flux<GitRefreshStorageEvent> watchRefresh() {
-    return this.fileService.watchRefresh();
+    return this.gitService.watchRefresh(owner);
   }
 }

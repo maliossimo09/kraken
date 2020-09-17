@@ -13,10 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>info.picocli</groupId>
-            <artifactId>picocli</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.octoperf.kraken</groupId>
             <artifactId>tools-event-bus</artifactId>
             <version>0.0.1-SNAPSHOT</version>

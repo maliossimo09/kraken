@@ -119,7 +119,7 @@
         </dependency>
         <dependency>
             <groupId>com.octoperf.kraken</groupId>
-            <artifactId>git-service-jgit</artifactId>
+            <artifactId>git-service-cmd</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 

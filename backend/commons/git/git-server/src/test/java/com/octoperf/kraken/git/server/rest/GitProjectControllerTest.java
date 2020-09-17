@@ -2,8 +2,8 @@ package com.octoperf.kraken.git.server.rest;
 
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.git.entity.GitConfigurationTest;
-import com.octoperf.kraken.git.service.api.GitFileServiceBuilder;
 import com.octoperf.kraken.git.service.api.GitProjectService;
+import com.octoperf.kraken.git.service.api.GitService;
 import com.octoperf.kraken.git.service.api.GitUserService;
 import com.octoperf.kraken.tests.utils.TestUtils;
 import com.octoperf.kraken.tests.web.security.AuthControllerTest;
@@ -16,7 +16,7 @@ import static org.mockito.BDDMockito.given;
 public class GitProjectControllerTest extends AuthControllerTest {
 
   @MockBean
-  GitFileServiceBuilder fileServiceBuilder;
+  GitService gitService;
   @MockBean
   GitProjectService projectService;
   @MockBean

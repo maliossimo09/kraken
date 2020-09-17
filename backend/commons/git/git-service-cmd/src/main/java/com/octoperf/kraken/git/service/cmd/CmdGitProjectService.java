@@ -54,6 +54,7 @@ final class CmdGitProjectService implements GitProjectService {
                   // Download symlinks as simple text files
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "config", "core.symlinks", "false")).build(),
                   // Config name / email
+                  // TODO add user fullname in the JWT token (KeyCloak web client configuration) and use it to configure the git name
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "config", "user.email", email)).build(),
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "config", "author.email", email)).build(),
                   Command.builder().path(tmp.toString()).environment(ImmutableMap.of()).args(ImmutableList.of("git", "config", "committer.email", email)).build(),

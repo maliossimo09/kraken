@@ -14,7 +14,6 @@
     <modules>
         <module>git-entity</module>
         <module>git-service-api</module>
-        <module>git-service-jgit</module>
         <module>git-server</module>
         <module>git-user-events-listener</module>
         <module>git-client-api</module>
