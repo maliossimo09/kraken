@@ -27,7 +27,6 @@ import static com.octoperf.kraken.tools.environment.KrakenEnvironmentKeys.GIT_SS
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 final class SpringUserIdToCommandEnvironment implements UserIdToCommandEnvironment {
 
-
   @NonNull
   OwnerToPath ownerToPath;
 
