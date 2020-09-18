@@ -74,8 +74,7 @@ final class CmdGitService implements GitService {
         .path(ownerToPath.apply(owner).toString())
         .environment(ImmutableMap.of())
         .build();
-    return statusParser.apply(commandService.validate(commandStatus)
-        .flatMapMany(commandService::execute));
+    return statusParser.apply(commandService.validate(commandStatus).flatMapMany(commandService::execute));
   }
 
   @Override

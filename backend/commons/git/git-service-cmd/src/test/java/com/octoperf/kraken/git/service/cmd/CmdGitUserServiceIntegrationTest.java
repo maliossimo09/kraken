@@ -32,6 +32,9 @@ public class CmdGitUserServiceIntegrationTest {
   GitUserService gitUserService;
 
   @MockBean
+  UserProvider userProvider;
+
+  @MockBean
   ApplicationProperties properties;
 
   GitCredentials created = null;

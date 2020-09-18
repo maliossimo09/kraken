@@ -8,6 +8,7 @@ import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.git.entity.GitConfiguration;
 import com.octoperf.kraken.security.authentication.api.UserProvider;
 import com.octoperf.kraken.security.entity.owner.OwnerTest;
+import com.octoperf.kraken.security.entity.token.KrakenTokenUserTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,23 +56,25 @@ class CmdGitProjectServiceTest {
     final var owner = OwnerTest.USER_OWNER;
     final var repositoryUrl = "repoUrl";
     final var rootPath = Paths.get("testDir");
+    given(toCommandEnvironment.apply(owner.getUserId())).willReturn(ImmutableMap.of());
+    given(properties.getData()).willReturn("testDir");
+    given(userProvider.getAuthenticatedUser()).willReturn(Mono.just(KrakenTokenUserTest.KRAKEN_USER));
     given(ownerToPath.apply(owner)).willReturn(rootPath);
-    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(anyList())).willReturn(Flux.just(repositoryUrl));
+    given(commandService.validate(anyList())).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0)));
+    given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0)));
+    given(commandService.execute(anyList())).willReturn(Flux.just("logs"));
+    given(commandService.execute(any(Command.class))).willReturn(Flux.just(repositoryUrl));
 
     final var config = projectService.connect(owner, repositoryUrl).block();
     Assertions.assertThat(config)
         .isNotNull()
         .isEqualTo(GitConfiguration.builder().repositoryUrl(repositoryUrl).build());
 
-    verify(commandService, times(2)).execute(commandCaptor.capture());
+    verify(commandService).execute(anyList());
 
-    Assertions.assertThat(commandCaptor.getAllValues()).hasSize(2);
-    final var cloneCmd = commandCaptor.getAllValues().get(1);
-    Assertions.assertThat(cloneCmd.getPath()).isEqualTo(rootPath.toString());
-    Assertions.assertThat(cloneCmd.getArgs().subList(0, cloneCmd.getArgs().size() - 1)).isEqualTo(ImmutableList.of("git", "clone", repositoryUrl));
+    verify(commandService).execute(commandCaptor.capture());
 
-    final var confCmd = commandCaptor.getAllValues().get(0);
+    final var confCmd = commandCaptor.getValue();
     Assertions.assertThat(confCmd).isEqualTo(Command.builder()
         .path(rootPath.toString())
         .environment(ImmutableMap.of())

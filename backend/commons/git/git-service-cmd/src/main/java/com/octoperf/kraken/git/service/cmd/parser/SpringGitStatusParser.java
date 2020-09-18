@@ -1,6 +1,5 @@
 package com.octoperf.kraken.git.service.cmd.parser;
 
-import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.git.entity.GitBranchStatus;
 import com.octoperf.kraken.git.entity.GitStatus;
 import lombok.AccessLevel;
