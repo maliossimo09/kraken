@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("squid:S2925")
 class SpringGitLogsServiceTest {
 
   SpringGitLogsService service;

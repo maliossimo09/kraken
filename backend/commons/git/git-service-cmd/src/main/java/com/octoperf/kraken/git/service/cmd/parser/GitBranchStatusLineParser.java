@@ -25,7 +25,8 @@ final class GitBranchStatusLineParser implements GitStatusLineParser {
         final var ahead = Long.parseLong(line[2].substring(1));
         final var behind = Long.parseLong(line[3].substring(1));
         return status.toBuilder().branch(status.getBranch().toBuilder().ahead(ahead).behind(behind).build()).build();
+      default:
+        return status;
     }
-    return status;
   }
 }

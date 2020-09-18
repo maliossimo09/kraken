@@ -83,7 +83,7 @@ public class ZtCommandServiceTest {
         .args(Arrays.asList("ls", "../"))
         .environment(ImmutableMap.of())
         .build();
-    StepVerifier.create(service.execute(command))
+    StepVerifier.create(service.validate(command))
         .expectError(IllegalArgumentException.class)
         .verify();
   }
@@ -95,7 +95,7 @@ public class ZtCommandServiceTest {
         .args(Arrays.asList("ls", "/"))
         .environment(ImmutableMap.of())
         .build();
-    StepVerifier.create(service.execute(command))
+    StepVerifier.create(service.validate(command))
         .expectError(IllegalArgumentException.class)
         .verify();
   }
@@ -107,7 +107,7 @@ public class ZtCommandServiceTest {
         .args(Arrays.asList("/bin/sh", "-c"))
         .environment(ImmutableMap.of())
         .build();
-    StepVerifier.create(service.execute(command))
+    StepVerifier.create(service.validate(command))
         .expectError(IllegalArgumentException.class)
         .verify();
   }

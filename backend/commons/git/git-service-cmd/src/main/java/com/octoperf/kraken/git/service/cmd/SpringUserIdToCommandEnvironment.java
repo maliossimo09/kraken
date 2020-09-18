@@ -1,10 +1,7 @@
 package com.octoperf.kraken.git.service.cmd;
 
 import com.google.common.collect.ImmutableMap;
-import com.octoperf.kraken.config.api.ApplicationProperties;
 import com.octoperf.kraken.security.entity.owner.Owner;
-import com.octoperf.kraken.security.entity.owner.OwnerType;
-import com.octoperf.kraken.security.entity.token.KrakenRole;
 import com.octoperf.kraken.tools.environment.KrakenEnvironmentKeys;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,11 +9,8 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.octoperf.kraken.git.service.cmd.CmdGitUserService.DOT_SSH;
 import static com.octoperf.kraken.git.service.cmd.CmdGitUserService.ID_RSA;
 import static com.octoperf.kraken.security.entity.owner.OwnerType.USER;

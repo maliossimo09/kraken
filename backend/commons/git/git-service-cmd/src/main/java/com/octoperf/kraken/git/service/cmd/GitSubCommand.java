@@ -9,20 +9,20 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public enum GitSubCommand {
-  add(false, false),
-  commit(false, false),
-  fetch(false, true),
-  status(false, false),
-  branch(true, true),
-  checkout(true, true),
-  merge(true, true),
-  pull(true, true),
-  push(true, true),
-  rebase(true, true),
-  rm(true, false),
-  log(true, true),
-  diff(true, true),
-  help(false, false);
+  ADD(false, false),
+  COMMIT(false, false),
+  FETCH(false, true),
+  STATUS(false, false),
+  BRANCH(true, true),
+  CHECKOUT(true, true),
+  MERGE(true, true),
+  PULL(true, true),
+  PUSH(true, true),
+  REBASE(true, true),
+  RM(true, false),
+  LOG(true, true),
+  DIFF(true, true),
+  HELP(false, false);
 
  boolean refresh;
  boolean remote;

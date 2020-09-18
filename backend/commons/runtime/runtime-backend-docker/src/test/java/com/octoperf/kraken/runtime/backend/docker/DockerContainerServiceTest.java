@@ -21,6 +21,7 @@ import java.util.function.BiFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -87,10 +88,9 @@ public class DockerContainerServiceTest {
     final var logs = Flux.just("logs");
     final var id = "taskId-containerId-containerName";
     given(commandService.validate(any(Command.class))).willAnswer(invocationOnMock -> Mono.just(invocationOnMock.getArgument(0, Command.class)));
-    given(commandService.execute(logsCommand)).willReturn(logs);
     given(findService.find(Owner.PUBLIC, taskId, containerName)).willReturn(Mono.just(FlatContainerTest.CONTAINER));
     assertThat(service.attachLogs(Owner.PUBLIC, taskId, containerId, containerName).block()).isEqualTo(id);
-    verify(logsService).push(Owner.PUBLIC, id, LogType.CONTAINER, logs);
+    verify(logsService).push(eq(Owner.PUBLIC), eq(id), eq(LogType.CONTAINER), any());
   }
 
   @Test

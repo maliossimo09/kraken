@@ -127,7 +127,7 @@ public class FileSystemStorageServiceIntegrationTest {
   @Test
   public void shouldList() {
     create(service.list())
-        .expectNextCount(32)
+        .expectNextCount(33)
         .expectComplete()
         .verify();
   }

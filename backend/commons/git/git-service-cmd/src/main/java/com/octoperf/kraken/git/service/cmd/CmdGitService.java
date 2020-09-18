@@ -48,7 +48,7 @@ final class CmdGitService implements GitService {
         .flatMap(args -> Mono.fromCallable(() -> {
           checkArgument(args.size() >= 2);
           checkArgument("git".equals(args.get(0)), "Only git commands are supported.");
-          final var subCommand = GitSubCommand.valueOf(args.get(1));
+          final var subCommand = GitSubCommand.valueOf(args.get(1).toUpperCase());
           final var env = subCommand.isRemote() ? toCommandEnvironment.apply(owner.getUserId()) : ImmutableMap.<KrakenEnvironmentKeys, String>of();
           final var cmd = Command.builder()
               .args(args)

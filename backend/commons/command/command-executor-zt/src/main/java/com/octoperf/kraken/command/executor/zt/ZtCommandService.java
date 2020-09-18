@@ -1,6 +1,5 @@
 package com.octoperf.kraken.command.executor.zt;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.octoperf.kraken.command.entity.Command;
 import com.octoperf.kraken.command.executor.api.CommandService;
@@ -16,11 +15,9 @@ import org.zeroturnaround.exec.ProcessExecutor;
 import org.zeroturnaround.exec.stream.LogOutputStream;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;

@@ -34,6 +34,7 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
 @Tag("integration")
+@SuppressWarnings("squid:S2925")
 public class CmdGitIntegrationTest {
 
   private static final String USER_ID = "userId";
